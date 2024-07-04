@@ -49,10 +49,6 @@ export class UserService {
         return user;
     }
 
-    async comparePasswords(providedPassword: string, storedPassword: string): Promise<boolean> {
-        return bcrypt.compare(providedPassword, storedPassword);
-    }
-
     async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
         const user = await User.findByPk(id);
         if (!user) {

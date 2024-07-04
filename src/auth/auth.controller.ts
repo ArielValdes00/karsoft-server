@@ -39,7 +39,7 @@ export class AuthController {
     @UseGuards(JwtAuthGuard)
     async logout(@Res() res: Response) {
         res.cookie('jwt', '', { httpOnly: true, expires: new Date(0) });
-        return res.send({ message: 'Logged out successfully' });
+        return res.send({ success: true });
     }
 
     @Get('verify')

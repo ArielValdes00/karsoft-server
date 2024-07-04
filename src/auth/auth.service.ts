@@ -26,11 +26,17 @@ export class AuthService {
     }
 
     async register(createUserDto: CreateUserDto): Promise<User> {
-        const { name, email, password, phone_number, business_name, address, postal_code } = createUserDto;
+        const { name, email, password, confirm_password, phone_number, business_name, address, postal_code } = createUserDto;
+        
+        if (password !== confirm_password) {
+            throw new BadRequestException('Las contraseñas no coinciden');
+        }
+
         const uniqueMail = await User.findOne({ where: { email: email } });
         if (uniqueMail) {
             throw new BadRequestException('El usuario ya existe');
         }
+
         const hashedPassword = await bcrypt.hash(password, 10);
         const user = await User.create({
             name,

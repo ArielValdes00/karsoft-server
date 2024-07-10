@@ -54,9 +54,6 @@ export class UserService {
         if (!user) {
             throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
         }
-        if (updateUserDto.password) {
-            updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
-        }
         await user.update(updateUserDto);
         return user;
     }

@@ -15,7 +15,7 @@ export class AuthController {
             const { access_token } = await this.authService.login(createUserDto.email, createUserDto.password);
             res.cookie('jwt', access_token, { httpOnly: true, secure: true, sameSite: 'none' });
 
-            res.cookie('isAuthenticated', 'true', { httpOnly: false });
+            res.cookie('isAuthenticated', 'true', { httpOnly: false, secure: true, sameSite: 'none' });
 
             return res.status(HttpStatus.OK).json({ success: true });
         } catch (error) {
@@ -33,7 +33,7 @@ export class AuthController {
             const { access_token } = await this.authService.login(email, password);
             res.cookie('jwt', access_token, { httpOnly: true, secure: true, sameSite: 'none' });
             
-            res.cookie('isAuthenticated', 'true', { httpOnly: false });
+            res.cookie('isAuthenticated', 'true', { httpOnly: false, secure: true, sameSite: 'none' });
 
             return res.status(HttpStatus.OK).json({ success: true });
         } catch (error) {

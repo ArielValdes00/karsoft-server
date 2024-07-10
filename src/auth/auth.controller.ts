@@ -13,10 +13,7 @@ export class AuthController {
         try {
             const user = await this.authService.register(createUserDto);
             const { access_token } = await this.authService.login(createUserDto.email, createUserDto.password);
-            res.cookie('jwt', access_token, { httpOnly: true, secure: true, sameSite: 'none' });
-
-            res.cookie('isAuthenticated', 'true', { httpOnly: false, secure: true, sameSite: 'none' });
-
+            res.cookie('jwt', access_token, { httpOnly: false, secure: true, sameSite: 'none' });
             return res.status(HttpStatus.OK).json({ success: true });
         } catch (error) {
             if (error.code === '23505') {
@@ -31,10 +28,8 @@ export class AuthController {
         const { email, password } = req.body;
         try {
             const { access_token } = await this.authService.login(email, password);
-            res.cookie('jwt', access_token, { httpOnly: true, secure: true, sameSite: 'none' });
-            
-            res.cookie('isAuthenticated', 'true', { httpOnly: false, secure: true, sameSite: 'none' });
-
+            res.cookie('jwt', access_token, { httpOnly: false, secure: true, sameSite: 'none' });
+        
             return res.status(HttpStatus.OK).json({ success: true });
         } catch (error) {
             return res.status(HttpStatus.UNAUTHORIZED).json({ message: 'Credenciales inválidas' });
@@ -44,7 +39,7 @@ export class AuthController {
     @Post('logout')
     @UseGuards(JwtAuthGuard)
     async logout(@Res() res: Response) {
-        res.cookie('jwt', '', { httpOnly: true, expires: new Date(0) });
+        res.cookie('jwt', '', { httpOnly: false, expires: new Date(0) });
         res.cookie('isAuthenticated', '', { httpOnly: false });
         return res.send({ success: true });
     }

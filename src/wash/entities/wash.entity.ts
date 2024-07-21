@@ -15,7 +15,7 @@ export class Wash extends Model<Wash> {
     @Column({ type: DataType.STRING, allowNull: false })
     washType: string;
 
-    @Column({ type: DataType.STRING, allowNull: true })
+    @Column({ type: DataType.STRING, allowNull: true, defaultValue: "Sin Empezar" })
     status: string;
 
     @ForeignKey(() => User)

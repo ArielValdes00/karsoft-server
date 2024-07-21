@@ -14,12 +14,24 @@ export class WashService {
         }
     }
 
-    async findAll(userId: string): Promise<Wash[]> {
-        const washes = await Wash.findAll({ where: { userId } });
-        if (!washes || washes.length === 0) {
-            throw new NotFoundException('No se pudieron encontrar los lavados');
+    async findAll(userId: string, page: number = 1, limit: number = 10): Promise<any> {
+        const offset = (page - 1) * limit;
+        try {
+            const { count, rows } = await Wash.findAndCountAll({
+                where: { userId },
+                order: [['createdAt', 'DESC']],
+                limit,
+                offset
+            });
+
+            return {
+                data: rows,
+                totalPages: Math.ceil(count / limit),
+                currentPage: page
+            };
+        } catch (error) {
+            throw new InternalServerErrorException('Error al obtener los lavados');
         }
-        return washes;
     }
 
     async findOne(userId: string, id: string): Promise<Wash> {

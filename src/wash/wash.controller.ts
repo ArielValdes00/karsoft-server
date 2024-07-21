@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, Query } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
 import { CreateWashDto } from 'src/wash/dto/create-wash.dto';
 import { UpdateWashDto } from 'src/wash/dto/update-wash.dto';
@@ -7,7 +7,7 @@ import { WashService } from 'src/wash/wash.service';
 @Controller(':userId/wash')
 @UseGuards(JwtAuthGuard)
 export class WashController {
-    constructor(private readonly washService: WashService) {}
+    constructor(private readonly washService: WashService) { }
 
     @Post()
     create(@Param('userId') userId: string, @Body() createWashDto: CreateWashDto) {
@@ -15,9 +15,17 @@ export class WashController {
     }
 
     @Get()
-    findAll(@Param('userId') userId: string) {
-        return this.washService.findAll(userId);
+    findAll(
+        @Param('userId') userId: string,
+        @Query('page') page: number = 1,
+        @Query('limit') limit: number = 10
+    ) {
+        const pageNumber = Number(page) || 1;
+        const limitNumber = Number(limit) || 10;
+
+        return this.washService.findAll(userId, pageNumber, limitNumber);
     }
+
 
     findOne(@Param('userId') userId: string, @Param('id') id: string) {
         return this.washService.findOne(userId, id);

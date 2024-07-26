@@ -2,6 +2,7 @@ import { IsEmail, IsNotEmpty, Length } from 'class-validator';
 
 export class CreateUserDto {
     @IsNotEmpty({ message: 'El nombre es obligatorio' })
+    @Length(2, 50, { message: 'El nombre debe tener entre 2 y 50 caracteres' })
     name: string;
 
     @IsEmail({}, { message: 'El correo electrónico no es válido' })
@@ -17,6 +18,7 @@ export class CreateUserDto {
     confirm_password: string;
 
     @IsNotEmpty({ message: 'El número de teléfono es obligatorio' })
+    @Length(8, 15, { message: 'El número de teléfono debe tener entre 10 y 15 caracteres' })
     phone_number: string;
 
     @IsNotEmpty({ message: 'El nombre del negocio es obligatorio' })

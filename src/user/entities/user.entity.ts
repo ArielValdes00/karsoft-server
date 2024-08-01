@@ -1,9 +1,10 @@
 import { Column, DataType, Default, HasMany, Model, Table } from 'sequelize-typescript';
 import { Employee } from 'src/employee/entities/employee.entity';
+import { UserAuth } from 'src/utils/types';
 import { v4 as uuidv4 } from 'uuid';
 
 @Table({ tableName: 'users' })
-export class User extends Model {
+export class User extends Model<User> implements UserAuth {
     @Default(uuidv4)
     @Column({ type: DataType.UUID, unique: true })
     uuid: string;

@@ -8,6 +8,10 @@ export class CreateEmployeeDto {
     @IsNotEmpty({ message: 'El correo electrónico es obligatorio' })
     email: string;
 
+    @IsNotEmpty({ message: 'La contraseña es obligatoria' })
+    @Length(8, 20, { message: 'La contraseña debe tener entre 8 y 20 caracteres' })
+    password: string;
+
     @IsIn(['activo', 'inactivo'], { message: 'El estado debe ser "activo" o "inactivo"' })
     status: 'activo' | 'inactivo';
 

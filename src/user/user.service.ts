@@ -3,6 +3,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
+import { UserAuth } from 'src/utils/types';
 
 @Injectable()
 export class UserService {
@@ -41,12 +42,8 @@ export class UserService {
         return user;
     }
 
-    async findByEmail(email: string): Promise<User | null> {
-        const user = await User.findOne({ where: { email } });
-        if (!user) {
-            throw new NotFoundException(`Usuario con nombre ${email} no encontrado`);
-        }
-        return user;
+    async findByEmail(email: string): Promise<UserAuth | null> {
+        return User.findOne({ where: { email } }) as unknown as UserAuth;
     }
 
     async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {

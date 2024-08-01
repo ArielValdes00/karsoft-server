@@ -19,11 +19,6 @@ export class EmployeeController {
         return this.employeeService.findAll(userId);
     }
 
-    @Get(':id')
-    findOne(@Param('userId') userId: string, @Param('id') id: string) {
-        return this.employeeService.findOne(userId, id);
-    }
-
     @Put(':id')
     update(@Param('userId') userId: string, @Param('id') id: string, @Body() updateEmployeeDto: UpdateEmployeeDto) {
         return this.employeeService.update(userId, id, updateEmployeeDto);
@@ -32,5 +27,16 @@ export class EmployeeController {
     @Delete(':id')
     remove(@Param('userId') userId: string, @Param('id') id: string) {
         return this.employeeService.remove(userId, id);
+    }
+}
+
+@Controller('employee')
+@UseGuards(JwtAuthGuard)
+export class SpecificEmployeeController {
+    constructor(private readonly employeeService: EmployeeService) { }
+
+    @Get(':id') 
+    findOne(@Param('id') id: string) {
+        return this.employeeService.getOne(id);
     }
 }

@@ -2,12 +2,19 @@ import { Injectable, NotFoundException, InternalServerErrorException } from '@ne
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { Employee } from './entities/employee.entity';
+import * as bcrypt from 'bcrypt';
+import { EmployeeAuth } from 'src/utils/types';
 
 @Injectable()
 export class EmployeeService {
     async create(userId: string, createEmployeeDto: CreateEmployeeDto): Promise<Employee> {
         try {
-            const employee = await Employee.create({ ...createEmployeeDto, userId });
+            const hashedPassword = await bcrypt.hash(createEmployeeDto.password, 10);
+            const employee = await Employee.create({
+                ...createEmployeeDto,
+                password: hashedPassword,
+                userId,
+            });
             return employee;
         } catch (error) {
             throw new InternalServerErrorException('Error al crear el empleado');
@@ -28,6 +35,18 @@ export class EmployeeService {
             throw new NotFoundException(`Empleado con ID ${id} no encontrado`);
         }
         return employee;
+    }
+
+    async getOne(id: string): Promise<any> {
+        const employee = await Employee.findOne({ where: { id } });
+        if (!employee) {
+            throw new NotFoundException(`Empleado con ID ${id} no encontrado`);
+        }
+        return employee;
+    }
+
+    async findByEmail(email: string): Promise<EmployeeAuth | null> {
+        return Employee.findOne({ where: { email } }) as unknown as EmployeeAuth;
     }
 
     async update(userId: string, id: string, updateEmployeeDto: UpdateEmployeeDto): Promise<Employee> {

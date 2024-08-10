@@ -8,6 +8,7 @@ import { EmployeeAuth } from 'src/utils/types';
 @Injectable()
 export class EmployeeService {
     async create(userId: string, createEmployeeDto: CreateEmployeeDto): Promise<Employee> {
+        console.log(createEmployeeDto.password)
         try {
             const hashedPassword = await bcrypt.hash(createEmployeeDto.password, 10);
             const employee = await Employee.create({

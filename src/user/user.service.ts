@@ -42,8 +42,8 @@ export class UserService {
         return user;
     }
 
-    async findByEmail(email: string): Promise<UserAuth | null> {
-        return User.findOne({ where: { email } }) as unknown as UserAuth;
+    async findByEmail(email: string): Promise<any> {
+        return User.findOne({ where: { email } });
     }
 
     async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {

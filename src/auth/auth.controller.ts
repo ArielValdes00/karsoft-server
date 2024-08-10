@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Post, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
@@ -27,10 +27,13 @@ export class AuthController {
         const { email, password } = req.body;
         try {
             const { access_token } = await this.authService.login(email, password);
-        
             return res.status(HttpStatus.OK).json({ success: true, access_token });
         } catch (error) {
-            return res.status(HttpStatus.UNAUTHORIZED).json({ message: 'Credenciales inválidas' });
+            if (error instanceof UnauthorizedException) {
+                return res.status(HttpStatus.UNAUTHORIZED).json({ message: error.message });
+            } else {
+                return res.status(HttpStatus.BAD_REQUEST).json({ message: 'Error en el proceso de autenticación' });
+            }
         }
     }
 

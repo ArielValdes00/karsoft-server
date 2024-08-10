@@ -18,6 +18,15 @@ export class Wash extends Model<Wash> {
     @Column({ type: DataType.STRING, allowNull: true, defaultValue: "Sin Empezar" })
     status: string;
 
+    @Column({ type: DataType.INTEGER, allowNull: false })
+    price: number;
+
+    @Column({ 
+        type: DataType.ENUM('efectivo', 'tarjeta', 'transferencia'), 
+        allowNull: false 
+    })
+    paymentMethod: string;
+
     @ForeignKey(() => User)
     @Column({ type: DataType.INTEGER })
     userId: string;

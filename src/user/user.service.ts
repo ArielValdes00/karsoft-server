@@ -3,10 +3,12 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
-import { UserAuth } from 'src/utils/types';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class UserService {
+    constructor(private cloudinaryService: CloudinaryService) {} 
+
     async create(createUserDto: CreateUserDto): Promise<number> {
         const { name, email, password, phone_number, business_name, address, postal_code } = createUserDto;
         const uniqueMail = await User.findOne({ where: { email: email } });
@@ -61,5 +63,19 @@ export class UserService {
             throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
         }
         await user.destroy();
+    }
+
+    async uploadImage(id: number, file: Express.Multer.File): Promise<User> {
+        const user = await User.findByPk(id);
+        if (!user) {
+            throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
+        }
+
+        const uploadResult = await this.cloudinaryService.uploadFile(file);
+        const imageUrl = uploadResult.secure_url;
+
+        await user.update({ avatar: imageUrl });
+
+        return user;
     }
 }

@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Param, Delete, UseGuards, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, UseGuards, Put, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('user')
 @UseGuards(JwtAuthGuard)
@@ -32,5 +33,11 @@ export class UserController {
     @Delete(':id')
     remove(@Param('id') id: string) {
         return this.userService.remove(+id);
+    }
+
+    @Post(':id/upload')
+    @UseInterceptors(FileInterceptor('file'))
+    async uploadImage(@Param('id') id: string, @UploadedFile() file: Express.Multer.File) {
+        return this.userService.uploadImage(+id, file);
     }
 }

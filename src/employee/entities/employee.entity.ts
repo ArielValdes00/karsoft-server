@@ -19,6 +19,9 @@ export class Employee extends Model<Employee> implements EmployeeAuth {
     @Column({ type: DataType.STRING, unique: true })
     email: string;
 
+    @Column({ type: DataType.STRING, allowNull: true })
+    avatar: string;
+
     @Column({ type: DataType.STRING })
     status: 'activo' | 'inactivo';
 

@@ -4,9 +4,12 @@ import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { Employee } from './entities/employee.entity';
 import * as bcrypt from 'bcrypt';
 import { EmployeeAuth } from 'src/utils/types';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class EmployeeService {
+    constructor(private cloudinaryService: CloudinaryService) {} 
+
     async create(userId: string, createEmployeeDto: CreateEmployeeDto): Promise<Employee> {
         console.log(createEmployeeDto.password)
         try {
@@ -68,4 +71,19 @@ export class EmployeeService {
             throw new InternalServerErrorException('Error al eliminar el empleado');
         }
     }
+
+    async uploadImage(userId: string, id: number, file: Express.Multer.File): Promise<Employee> {
+        const employee = await Employee.findOne({ where: { id, userId } });
+        if (!employee) {
+            throw new NotFoundException(`Empleado con ID ${id} no encontrado o no pertenece al usuario.`);
+        }
+   
+        const uploadResult = await this.cloudinaryService.uploadFile(file);
+        const imageUrl = uploadResult.secure_url;
+   
+        await employee.update({ avatar: imageUrl });
+   
+        return employee;
+    }
+   
 }

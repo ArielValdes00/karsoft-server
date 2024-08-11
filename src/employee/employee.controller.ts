@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('/:userId/employees')
 @UseGuards(JwtAuthGuard)
@@ -28,6 +29,16 @@ export class EmployeeController {
     remove(@Param('userId') userId: string, @Param('id') id: string) {
         return this.employeeService.remove(userId, id);
     }
+
+    @Post(':id/upload')
+    @UseInterceptors(FileInterceptor('file'))
+    uploadAvatar(
+        @Param('userId') userId: string,
+        @Param('id') id: number,
+        @UploadedFile() file: Express.Multer.File
+    ) {
+        return this.employeeService.uploadImage(userId, id, file);
+    }
 }
 
 @Controller('employee')
@@ -35,8 +46,10 @@ export class EmployeeController {
 export class SpecificEmployeeController {
     constructor(private readonly employeeService: EmployeeService) { }
 
-    @Get(':id') 
+    @Get(':id')
     findOne(@Param('id') id: string) {
         return this.employeeService.getOne(id);
     }
 }
+
+

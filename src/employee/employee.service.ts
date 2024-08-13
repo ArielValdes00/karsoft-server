@@ -10,7 +10,7 @@ import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 export class EmployeeService {
     constructor(private cloudinaryService: CloudinaryService) {} 
 
-    async create(userId: string, createEmployeeDto: CreateEmployeeDto): Promise<Employee> {
+    async create(userId: number, createEmployeeDto: CreateEmployeeDto): Promise<Employee> {
         console.log(createEmployeeDto.password)
         try {
             const hashedPassword = await bcrypt.hash(createEmployeeDto.password, 10);

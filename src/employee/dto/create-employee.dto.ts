@@ -18,4 +18,8 @@ export class CreateEmployeeDto {
     @IsNotEmpty({ message: 'El rol es obligatorio' })
     @Length(3, 20, { message: 'El rol debe tener entre 3 y 20 caracteres' })
     role: string;
+
+    @IsNotEmpty({ message: 'El número de teléfono es obligatorio' })
+    @Length(8, 15, { message: 'El número de teléfono debe tener entre 10 y 15 caracteres' })
+    phone_number: string;
 }

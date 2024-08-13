@@ -1,10 +1,11 @@
-import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, BadRequestException, UnauthorizedException, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import { EmployeeService } from '../employee/employee.service';
 import * as bcrypt from 'bcrypt';
 import { User } from 'src/user/entities/user.entity';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import { MailService } from './mail.service';
 
 @Injectable()
 export class AuthService {
@@ -12,7 +13,35 @@ export class AuthService {
         private readonly userService: UserService,
         private readonly jwtService: JwtService,
         private readonly employeeService: EmployeeService,
+        private readonly mailService: MailService,
     ) { }
+
+    async resetPassword(token: string, newPassword: string): Promise<void> {
+        try {
+          const { email } = this.jwtService.verify(token);
+          const user = await this.userService.findByEmail(email);
+          if (!user) {
+            throw new NotFoundException('User not found');
+          }
+      
+          const hashedPassword = await bcrypt.hash(newPassword, 10);
+          await this.userService.updatePassword(user.id, hashedPassword);
+        } catch (error) {
+          throw new UnauthorizedException('Invalid or expired token');
+        }
+      }
+
+    async forgotPassword(email: string): Promise<void> {
+        const user = await this.userService.findByEmail(email);
+        if (!user) {
+          throw new NotFoundException('User not found');
+        }
+    
+        const token = this.jwtService.sign({ email: user.email }, { expiresIn: '1h' });
+    
+        const resetUrl = `http://tudominio.com/reset-password?token=${token}`;
+        await this.mailService.sendResetPasswordEmail(user.email, resetUrl);
+      }
 
     private async isEmailUnique(email: string): Promise<boolean> {
         const user = await this.userService.findByEmail(email);

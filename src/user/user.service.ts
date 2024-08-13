@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -8,6 +8,16 @@ import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 @Injectable()
 export class UserService {
     constructor(private cloudinaryService: CloudinaryService) {} 
+
+    async updatePassword(userId: number, newPassword: string): Promise<void> {
+        const user = await User.findByPk(userId);
+        if (!user) {
+          throw new NotFoundException(`Usuario con ID ${userId} no encontrado`);
+        }
+    
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await user.update({ password: hashedPassword });
+      }
 
     async create(createUserDto: CreateUserDto): Promise<number> {
         const { name, email, password, phone_number, business_name, address, postal_code } = createUserDto;
@@ -70,12 +80,15 @@ export class UserService {
         if (!user) {
             throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
         }
-
-        const uploadResult = await this.cloudinaryService.uploadFile(file);
-        const imageUrl = uploadResult.secure_url;
-
-        await user.update({ avatar: imageUrl });
-
-        return user;
+    
+        try {
+            const uploadResult = await this.cloudinaryService.uploadFile(file);
+            const imageUrl = uploadResult.secure_url;
+            await user.update({ avatar: imageUrl });
+            return user;
+        } catch (error) {
+            throw new BadRequestException(`Error subiendo la imagen: ${error.message}`);
+        }
     }
+    
 }

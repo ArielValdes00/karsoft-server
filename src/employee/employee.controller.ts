@@ -11,7 +11,7 @@ export class EmployeeController {
     constructor(private readonly employeeService: EmployeeService) { }
 
     @Post()
-    create(@Param('userId') userId: string, @Body() createEmployeeDto: CreateEmployeeDto) {
+    create(@Param('userId') userId: number, @Body() createEmployeeDto: CreateEmployeeDto) {
         return this.employeeService.create(userId, createEmployeeDto);
     }
 

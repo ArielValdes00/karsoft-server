@@ -15,7 +15,7 @@ dotenv.config();
                     user: process.env.MAIL_USER,
                     pass: process.env.MAIL_PASS,
                 },
-                secure: true,
+                secure: false,
                 tls: {
                     rejectUnauthorized: false, 
                 },

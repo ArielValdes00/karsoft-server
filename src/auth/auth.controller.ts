@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Post, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Post, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
@@ -46,13 +46,21 @@ export class AuthController {
     }
 
     @Post('forgot-password')
-    async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
-        return this.authService.forgotPassword(forgotPasswordDto.email);
+    @HttpCode(HttpStatus.OK) 
+    async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto){
+        const results = await this.authService.forgotPassword(forgotPasswordDto.email);
+        return results;
     }
 
     @Post('reset-password')
+    @HttpCode(HttpStatus.OK)
     async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
-        return this.authService.resetPassword(resetPasswordDto.token, resetPasswordDto.newPassword);
+        const results = await this.authService.resetPassword(
+            resetPasswordDto.token,
+            resetPasswordDto.newPassword,
+            resetPasswordDto.confirmPassword
+        );
+        return results;
     }
 
     @Get('verify')

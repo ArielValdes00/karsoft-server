@@ -7,17 +7,16 @@ import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class UserService {
-    constructor(private cloudinaryService: CloudinaryService) {} 
+    constructor(private cloudinaryService: CloudinaryService) { }
 
     async updatePassword(userId: number, newPassword: string): Promise<void> {
         const user = await User.findByPk(userId);
         if (!user) {
-          throw new NotFoundException(`Usuario con ID ${userId} no encontrado`);
+            throw new NotFoundException(`Usuario con ID ${userId} no encontrado`);
         }
-    
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-        await user.update({ password: hashedPassword });
-      }
+
+        await user.update({ password: newPassword });
+    }
 
     async create(createUserDto: CreateUserDto): Promise<number> {
         const { name, email, password, phone_number, business_name, address, postal_code } = createUserDto;
@@ -80,7 +79,7 @@ export class UserService {
         if (!user) {
             throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
         }
-    
+
         try {
             const uploadResult = await this.cloudinaryService.uploadFile(file);
             const imageUrl = uploadResult.secure_url;
@@ -90,5 +89,5 @@ export class UserService {
             throw new BadRequestException(`Error subiendo la imagen: ${error.message}`);
         }
     }
-    
+
 }

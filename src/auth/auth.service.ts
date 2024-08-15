@@ -6,7 +6,9 @@ import * as bcrypt from 'bcrypt';
 import { User } from 'src/user/entities/user.entity';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { MailService } from './mail.service';
+import * as dotenv from 'dotenv';
 
+dotenv.config();
 @Injectable()
 export class AuthService {
     constructor(
@@ -16,33 +18,41 @@ export class AuthService {
         private readonly mailService: MailService,
     ) { }
 
-    async resetPassword(token: string, newPassword: string): Promise<void> {
-        try {
-          const { email } = this.jwtService.verify(token);
-          const user = await this.userService.findByEmail(email);
-          if (!user) {
-            throw new NotFoundException('User not found');
-          }
-      
-          const hashedPassword = await bcrypt.hash(newPassword, 10);
-          await this.userService.updatePassword(user.id, hashedPassword);
-        } catch (error) {
-          throw new UnauthorizedException('Invalid or expired token');
+    async resetPassword(token: string, newPassword: string, confirmPassword: string): Promise<{ ok: boolean }> {
+        if (newPassword !== confirmPassword) {
+            throw new BadRequestException('Passwords do not match');
         }
-      }
+    
+        try {
+            const { email } = this.jwtService.verify(token);
+            const user = await this.userService.findByEmail(email);
+            if (!user) {
+                throw new NotFoundException('User not found');
+            }
+    
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+            await this.userService.updatePassword(user.id, hashedPassword);
+    
+            return { ok: true }; 
+    
+        } catch (error) {
+            throw new UnauthorizedException('Invalid or expired token');
+        }
+    }    
 
-    async forgotPassword(email: string): Promise<void> {
+    async forgotPassword(email: string): Promise<{ ok: boolean }> {
         const user = await this.userService.findByEmail(email);
         if (!user) {
-          throw new NotFoundException('User not found');
+            throw new NotFoundException('Invalid credentials');
         }
     
         const token = this.jwtService.sign({ email: user.email }, { expiresIn: '1h' });
-    
-        const resetUrl = `http://tudominio.com/reset-password?token=${token}`;
+        const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
         await this.mailService.sendResetPasswordEmail(user.email, resetUrl);
-      }
-
+    
+        return { ok: true };  
+    }    
+    
     private async isEmailUnique(email: string): Promise<boolean> {
         const user = await this.userService.findByEmail(email);
         const employee = await this.employeeService.findByEmail(email);
@@ -77,28 +87,28 @@ export class AuthService {
     async login(email: string, password: string) {
         let user = await this.userService.findByEmail(email);
         let userType = 'user';
-        
+
         if (!user) {
             user = await this.employeeService.findByEmail(email);
             userType = 'employee';
         }
-        
+
         if (!user) {
             throw new UnauthorizedException('Usuario o empleado no encontrado');
         }
-    
+
         if (userType === 'employee') {
             if (user.status === 'inactivo') {
                 throw new UnauthorizedException('El empleado está inactivo y no puede iniciar sesión');
             }
         }
-    
+
         const passwordMatch = await bcrypt.compare(password, user.password);
-        
+
         if (!passwordMatch) {
             throw new UnauthorizedException('Credenciales inválidas');
         }
-        
+
         const payload = {
             sub: user.id,
             email: user.email,
@@ -106,13 +116,13 @@ export class AuthService {
             avatar: user.avatar,
             type: userType,
         };
-        
+
         return {
             access_token: this.jwtService.sign(payload),
         };
     }
-    
-    
+
+
 
     async validateUser(userId: any, userType: string) {
         if (userType === 'user') {

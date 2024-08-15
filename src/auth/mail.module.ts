@@ -15,6 +15,11 @@ dotenv.config();
                     user: process.env.MAIL_USER,
                     pass: process.env.MAIL_PASS,
                 },
+                secure: false,
+                tls: {
+                    rejectUnauthorized: false, 
+                },
+                debug: true,
             },
             defaults: {
                 from: `"No Reply" <${process.env.MAIL_FROM}>`,

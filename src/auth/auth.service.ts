@@ -24,16 +24,29 @@ export class AuthService {
         }
     
         try {
-            const { email } = this.jwtService.verify(token);
-            const user = await this.userService.findByEmail(email);
+            const { email, userType } = this.jwtService.verify(token);
+    
+            let user: any;
+    
+            if (userType === 'user') {
+                user = await this.userService.findByEmail(email);
+            } else if (userType === 'employee') {
+                user = await this.employeeService.findByEmail(email);
+            }
+    
             if (!user) {
-                throw new NotFoundException('User not found');
+                throw new NotFoundException('User or employee not found');
             }
     
             const hashedPassword = await bcrypt.hash(newPassword, 10);
-            await this.userService.updatePassword(user.id, hashedPassword);
     
-            return { ok: true }; 
+            if (userType === 'user') {
+                await this.userService.updatePassword(user.id, hashedPassword);
+            } else if (userType === 'employee') {
+                await this.employeeService.updatePassword(user.id, hashedPassword);
+            }
+    
+            return { ok: true };
     
         } catch (error) {
             throw new UnauthorizedException('Invalid or expired token');
@@ -41,18 +54,25 @@ export class AuthService {
     }    
 
     async forgotPassword(email: string): Promise<{ ok: boolean }> {
-        const user = await this.userService.findByEmail(email);
+        let user = await this.userService.findByEmail(email);
+        let userType = 'user';
+
+        if (!user) {
+            user = await this.employeeService.findByEmail(email);
+            userType = 'employee';
+        }
+
         if (!user) {
             throw new NotFoundException('Invalid credentials');
         }
-    
-        const token = this.jwtService.sign({ email: user.email }, { expiresIn: '1h' });
+
+        const token = this.jwtService.sign({ email: user.email, userType }, { expiresIn: '1h' });
         const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
         await this.mailService.sendResetPasswordEmail(user.email, resetUrl);
-    
-        return { ok: true };  
-    }    
-    
+
+        return { ok: true };
+    }
+
     private async isEmailUnique(email: string): Promise<boolean> {
         const user = await this.userService.findByEmail(email);
         const employee = await this.employeeService.findByEmail(email);

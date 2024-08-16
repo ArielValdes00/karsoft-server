@@ -8,7 +8,16 @@ import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class EmployeeService {
-    constructor(private cloudinaryService: CloudinaryService) {} 
+    constructor(private cloudinaryService: CloudinaryService) { }
+
+    async updatePassword(id: string, newPassword: string): Promise<void> {
+        const employee = await this.getOne(id);
+        if (!employee) {
+            throw new NotFoundException(`Empleado con ID ${id} no encontrado`);
+        }
+
+        await employee.update({ password: newPassword });
+    }
 
     async create(userId: number, createEmployeeDto: CreateEmployeeDto): Promise<Employee> {
         console.log(createEmployeeDto.password)
@@ -77,13 +86,13 @@ export class EmployeeService {
         if (!employee) {
             throw new NotFoundException(`Empleado con ID ${id} no encontrado o no pertenece al usuario.`);
         }
-   
+
         const uploadResult = await this.cloudinaryService.uploadFile(file);
         const imageUrl = uploadResult.secure_url;
-   
+
         await employee.update({ avatar: imageUrl });
-   
+
         return employee;
     }
-   
+
 }

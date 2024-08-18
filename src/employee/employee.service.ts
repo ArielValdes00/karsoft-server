@@ -20,7 +20,6 @@ export class EmployeeService {
     }
 
     async create(userId: number, createEmployeeDto: CreateEmployeeDto): Promise<Employee> {
-        console.log(createEmployeeDto.password)
         try {
             const hashedPassword = await bcrypt.hash(createEmployeeDto.password, 10);
             const employee = await Employee.create({
@@ -60,6 +59,14 @@ export class EmployeeService {
 
     async findByEmail(email: string): Promise<EmployeeAuth | null> {
         return Employee.findOne({ where: { email } }) as unknown as EmployeeAuth;
+    }
+
+    async getRole(employeeId: string): Promise<string> {
+        const employee = await Employee.findByPk(employeeId);
+        if (!employee) {
+            throw new Error('Empleado no encontrado');
+        }
+        return employee.role;
     }
 
     async update(userId: string, id: string, updateEmployeeDto: UpdateEmployeeDto): Promise<Employee> {

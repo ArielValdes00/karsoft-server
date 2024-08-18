@@ -6,6 +6,7 @@ import { Wash } from './entities/wash.entity';
 @Injectable()
 export class WashService {
     async create(userId: string, createWashDto: CreateWashDto): Promise<Wash> {
+
         try {
             const wash = await Wash.create({ ...createWashDto, userId });
             return wash;

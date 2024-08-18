@@ -107,28 +107,35 @@ export class AuthService {
     async login(email: string, password: string) {
         let user = await this.userService.findByEmail(email);
         let userType = 'user';
-
+    
         if (!user) {
             user = await this.employeeService.findByEmail(email);
             userType = 'employee';
+    
+            if (user) {
+                const employeeRole = await this.employeeService.getRole(user.id); 
+                if (employeeRole === 'admin') {
+                    userType = 'employeeUser';
+                } else {
+                    userType = 'employee'; 
+                }
+            }
         }
-
+    
         if (!user) {
             throw new UnauthorizedException('Usuario o empleado no encontrado');
         }
-
-        if (userType === 'employee') {
-            if (user.status === 'inactivo') {
-                throw new UnauthorizedException('El empleado está inactivo y no puede iniciar sesión');
-            }
+    
+        if (userType === 'employee' && user.status === 'inactivo') {
+            throw new UnauthorizedException('El empleado está inactivo y no puede iniciar sesión');
         }
-
+    
         const passwordMatch = await bcrypt.compare(password, user.password);
-
+    
         if (!passwordMatch) {
             throw new UnauthorizedException('Credenciales inválidas');
         }
-
+    
         const payload = {
             sub: user.id,
             email: user.email,
@@ -136,13 +143,12 @@ export class AuthService {
             avatar: user.avatar,
             type: userType,
         };
-
+    
         return {
             access_token: this.jwtService.sign(payload),
         };
     }
-
-
+    
 
     async validateUser(userId: any, userType: string) {
         if (userType === 'user') {

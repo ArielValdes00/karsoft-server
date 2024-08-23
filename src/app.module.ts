@@ -7,9 +7,10 @@ import { AuthModule } from './auth/auth.module';
 import { EmployeeModule } from './employee/employee.module';
 import { WashModule } from './wash/wash.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { MercadopagoModule } from './mercadopago/mercadopago.module';
 
 @Module({
-  imports: [UserModule, AuthModule, EmployeeModule, WashModule, CloudinaryModule],
+  imports: [UserModule, AuthModule, EmployeeModule, WashModule, CloudinaryModule, MercadopagoModule],
   controllers: [AppController],
   providers: [AppService, ...databaseProviders],
   exports: [...databaseProviders]

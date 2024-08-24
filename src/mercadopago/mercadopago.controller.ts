@@ -38,8 +38,6 @@ export class MercadopagoController {
     @Body() webhookData: any, 
     @Headers('x-signature') signature: string
   ) {
-    console.log('Webhook recibido:', webhookData);
-    console.log('Firma recibida:', signature);
     
     return this.mercadopagoService.handleWebhook(webhookData);
   }

@@ -1,5 +1,4 @@
-import { Model } from 'sequelize';
-import { Column, DataType, Default, Table } from 'sequelize-typescript';
+import { Column, DataType, Default, Table, Model } from 'sequelize-typescript';
 import { v4 as uuidv4 } from 'uuid';
 
 @Table({ tableName: 'mercadopago_subscriptions' })

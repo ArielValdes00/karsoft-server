@@ -3,14 +3,16 @@ import { Mercadopago } from './entities/mercadopago.entity';
 import { CreateMercadopagoDto } from './dto/create-mercadopago.dto';
 import { UpdateMercadopagoDto } from './dto/update-mercadopago.dto';
 import { MercadoPagoConfig, PreApproval } from 'mercadopago';
+import * as dotenv from 'dotenv';
 
+dotenv.config();
 @Injectable()
 export class MercadopagoService {
     Preapproval: PreApproval;
 
     constructor() {
         const client = new MercadoPagoConfig({
-            accessToken: 'TEST-7422786425063037-051611-57219afbce60d4c867c60bb1e820212b-665778977',
+            accessToken: process.env.API_SECRET_MERCADOPAGO,
             options: {
                 timeout: 5000,
                 idempotencyKey: 'abc',

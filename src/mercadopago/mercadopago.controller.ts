@@ -9,7 +9,7 @@ export class MercadopagoController {
 
   @Post()
   create(@Body() createMercadopagoDto: CreateMercadopagoDto) {
-    return this.mercadopagoService.create(createMercadopagoDto);
+    return this.mercadopagoService.createSubscription(createMercadopagoDto);
   }
 
   @Get()

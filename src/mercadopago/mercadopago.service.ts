@@ -2,16 +2,51 @@ import { Injectable, InternalServerErrorException, NotFoundException } from '@ne
 import { Mercadopago } from './entities/mercadopago.entity';
 import { CreateMercadopagoDto } from './dto/create-mercadopago.dto';
 import { UpdateMercadopagoDto } from './dto/update-mercadopago.dto';
+import { MercadoPagoConfig, PreApproval } from 'mercadopago';
 
 @Injectable()
 export class MercadopagoService {
+    Preapproval: PreApproval;
 
-    async create(createMercadopagoDto: CreateMercadopagoDto) {
-        return Mercadopago.create(createMercadopagoDto);
+    constructor() {
+        const client = new MercadoPagoConfig({
+            accessToken: 'TEST-7422786425063037-051611-57219afbce60d4c867c60bb1e820212b-665778977',
+            options: {
+                timeout: 5000,
+                idempotencyKey: 'abc',
+            },
+        });
+
+        this.Preapproval = new PreApproval(client);
+    }
+
+    async createSubscription(subscriptionData: any) {
+        console.log(subscriptionData)
+        try {
+            const response = await this.Preapproval.create({
+                body: {
+                    payer_email: subscriptionData.payer_email,
+                    back_url: "http://localhost:3000/login",
+                    preapproval_plan_id: subscriptionData.preapproval_plan_id,
+                    auto_recurring: {
+                        frequency: 1,
+                        frequency_type: "months",
+                        start_date: "2020-06-02T13:07:14.260Z",
+                        end_date: "2022-07-20T15:59:52.581Z",
+                        transaction_amount: subscriptionData.price,
+                        currency_id: "ARS"
+                    },
+                    card_token_id: subscriptionData.card_token_id,
+                },
+            });
+            return response;
+        } catch (error) {
+            console.error('Error creating subscription:', error);
+            throw new InternalServerErrorException('Error al crear la suscripción');
+        }
     }
 
     async findAll() {
-        console.log('Mercadopago:', Mercadopago);
         const mercadopago = await Mercadopago.findAll();
         if (!mercadopago) {
             throw new NotFoundException('No se pudieron encontrar los usuarios');
@@ -49,15 +84,6 @@ export class MercadopagoService {
     }
 
     async handleWebhook(webhookData: any) {
-        const { id, status, payer_email, amount, next_payment_date, application_id } = webhookData.data;
-
-        return await Mercadopago.create({
-            preapprovalId: id,
-            status,
-            payerEmail: payer_email,
-            amount,
-            nextPaymentDate: next_payment_date,
-            applicationId: application_id,
-        });
+       console.log(webhookData)
     }
 }

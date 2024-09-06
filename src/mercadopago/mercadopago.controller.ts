@@ -8,8 +8,8 @@ export class MercadopagoController {
   constructor(private readonly mercadopagoService: MercadopagoService) {}
 
   @Post()
-  create(@Body() createMercadopagoDto: CreateMercadopagoDto) {
-    return this.mercadopagoService.createSubscription(createMercadopagoDto);
+  create(@Body('userId') userId: string) {
+    return this.mercadopagoService.createSubscription(userId);
   }
 
   @Get()

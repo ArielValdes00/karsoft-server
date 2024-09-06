@@ -66,6 +66,7 @@ export class AuthController {
     @Get('verify')
     @UseGuards(JwtAuthGuard)
     async verifySession(@Req() req, @Res() res: Response) {
+        console.log(req, res)
         const { user } = req;
         if (user) {
             const userType = user.type;

@@ -1,10 +1,11 @@
-import { Column, DataType, Default, Table, Model } from 'sequelize-typescript';
+import { Column, DataType, Default, Table, Model, ForeignKey } from 'sequelize-typescript';
+import { User } from 'src/user/entities/user.entity';
 import { v4 as uuidv4 } from 'uuid';
 
 @Table({ tableName: 'mercadopago_subscriptions' })
 export class Mercadopago extends Model<Mercadopago> {
   @Default(uuidv4)
-  @Column({ type: DataType.UUID, unique: true })
+  @Column({ type: DataType.UUID, unique: true, primaryKey: true })
   uuid: string;
 
   @Column({ type: DataType.STRING, unique: true })
@@ -23,5 +24,12 @@ export class Mercadopago extends Model<Mercadopago> {
   nextPaymentDate: Date; 
 
   @Column({ type: DataType.STRING, allowNull: true })
-  applicationId: string; 
+  applicationId: string;
+
+  @Column({ type: DataType.STRING, allowNull: true, unique: true })
+  externalReference: string; 
+
+  @ForeignKey(() => User)
+  @Column({ type: DataType.UUID })
+  userId: string; 
 }

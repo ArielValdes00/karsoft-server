@@ -32,9 +32,9 @@ export class AuthController {
             return res.status(HttpStatus.OK).json({ success: true, access_token });
         } catch (error) {
             if (error instanceof UnauthorizedException) {
-                return res.status(HttpStatus.UNAUTHORIZED).json({ message: error.message });
+                return res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: error.message });
             } else {
-                return res.status(HttpStatus.BAD_REQUEST).json({ message: 'Error en el proceso de autenticación' });
+                return res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: 'Error en el proceso de autenticación' });
             }
         }
     }
@@ -46,8 +46,8 @@ export class AuthController {
     }
 
     @Post('forgot-password')
-    @HttpCode(HttpStatus.OK) 
-    async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto){
+    @HttpCode(HttpStatus.OK)
+    async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
         const results = await this.authService.forgotPassword(forgotPasswordDto.email);
         return results;
     }

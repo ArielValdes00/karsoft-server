@@ -123,7 +123,7 @@ export class AuthService {
         }
     
         if (!user) {
-            throw new UnauthorizedException('Usuario o empleado no encontrado');
+            throw new UnauthorizedException('Credenciales invalidas');
         }
     
         if (userType === 'employee' && user.status === 'inactivo') {

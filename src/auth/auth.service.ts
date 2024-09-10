@@ -65,7 +65,7 @@ export class AuthService {
         if (!user) {
             throw new NotFoundException('Invalid credentials');
         }
-
+        
         const token = this.jwtService.sign({ email: user.email, userType }, { expiresIn: '1h' });
         const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
         await this.mailService.sendResetPasswordEmail(user.email, resetUrl);

@@ -8,10 +8,10 @@ export class MercadopagoController {
   constructor(private readonly mercadopagoService: MercadopagoService) {}
 
   @Post()
-  create(@Body('userId') userId: string) {
-    return this.mercadopagoService.createSubscription(userId);
+  create() {
+    return this.mercadopagoService.createSubscription();
   }
-
+  
   @Get()
   findAll() {
     return this.mercadopagoService.findAll();

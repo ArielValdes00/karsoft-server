@@ -1,69 +1,88 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { Mercadopago } from './entities/mercadopago.entity';
-import { CreateMercadopagoDto } from './dto/create-mercadopago.dto';
 import { UpdateMercadopagoDto } from './dto/update-mercadopago.dto';
-import { MercadoPagoConfig, PreApproval } from 'mercadopago';
 import * as dotenv from 'dotenv';
 import axios from 'axios';
 
 dotenv.config();
 @Injectable()
 export class MercadopagoService {
-    Preapproval: PreApproval;
 
-    constructor() {
-        const client = new MercadoPagoConfig({
-            accessToken: process.env.API_SECRET_MERCADOPAGO,
-            options: {
-                timeout: 5000,
-                idempotencyKey: 'abc',
-            },
-        });
-
-        this.Preapproval = new PreApproval(client);
-    }
-
-    async createSubscription(userId: any) {
+    async createSubscription() {
         try {
-            const response = await axios.post(`${process.env.URL_MERCADOPAGO}`, {
+            const response = await axios.post(`${process.env.URL_MERCADOPAGO}/preapproval_plan`, {
                 reason: "karsoft",
                 auto_recurring: {
                     frequency: 1,
                     frequency_type: "months",
                     repetitions: 12,
-                    billing_day: 10,
                     billing_day_proportional: true,
                     free_trial: {
-                        frequency: 1,
-                        frequency_type: "months"
+                        frequency: 7,
+                        frequency_type: "days"
                     },
                     transaction_amount: 10000,
                     currency_id: "ARS"
                 },
                 payment_methods_allowed: {
-                    payment_types: [
-                        {"id": "credit_card"}
-                    ],
-                    payment_methods: [
-                        {"id": "visa"}
-                    ]
+                    payment_types: [{ id: "credit_card" }],
+                    payment_methods: [{ id: "visa" }]
                 },
                 back_url: process.env.URL_BACKEND_DEPLOY,
-                external_reference: userId
             }, {
                 headers: {
-                    'Authorization':`Bearer ${process.env.SECRET_MERCADOPAGO}`,
+                    'Authorization': `Bearer ${process.env.API_SECRET_MERCADOPAGO}`,
                     'Content-Type': 'application/json'
                 }
             });
-    
-            return response.data.init_point;
+
+            const { init_point } = response.data;
+
+            return init_point; 
         } catch (error) {
             console.error('Error creating subscription preference:', error.response ? error.response.data : error.message);
             throw new InternalServerErrorException('Error al crear la preferencia de suscripción');
         }
     }
 
+    async getSuscripcion(payer_email: string) {
+        try {
+            const response = await axios.get(`${process.env.URL_MERCADOPAGO}/preapproval/search`, {
+                params: {
+                    payer_email: payer_email  
+                },
+                headers: {
+                    'Authorization': `Bearer ${process.env.API_SECRET_MERCADOPAGO}` 
+                }
+            });
+    
+            return response.data; 
+        } catch (error) {
+            console.error('Error al obtener la suscripción:', error.response ? error.response.data : error.message);
+            throw new InternalServerErrorException('Error al obtener la suscripción');
+        }
+    }
+
+    async cancelarSuscripcion(preapprovalId: string) {
+        try {
+            const response = await axios.put(`${process.env.URL_MERCADOPAGO}/${preapprovalId}`, 
+            {
+                status: "cancelled"
+            }, 
+            {
+                headers: {
+                    'Authorization': `Bearer ${process.env.API_SECRET_MERCADOPAGO}`,
+                    'Content-Type': 'application/json' 
+                }
+            });
+    
+            return response.data; 
+        } catch (error) {
+            console.error('Error al cancelar la suscripción:', error.response ? error.response.data : error.message);
+            throw new InternalServerErrorException('Error al cancelar la suscripción');
+        }
+    }
+    
     async findAll() {
         const mercadopago = await Mercadopago.findAll();
         if (!mercadopago) {
@@ -74,7 +93,7 @@ export class MercadopagoService {
 
     async findOne(id: string) {
         try {
-            const subscription = await Mercadopago.findOne({ where: { preapprovalId: id } });
+            const subscription = await Mercadopago.findOne({ where: { id } });
             if (!subscription) {
                 throw new NotFoundException(`Suscripción con ID ${id} no encontrada`);
             }
@@ -86,7 +105,7 @@ export class MercadopagoService {
 
 
     async update(id: string, updateMercadopagoDto: UpdateMercadopagoDto) {
-        const subscription = await Mercadopago.findOne({ where: { preapprovalId: id } });
+        const subscription = await Mercadopago.findOne({ where: { id } });
         if (subscription) {
             return subscription.update(updateMercadopagoDto);
         }
@@ -94,7 +113,7 @@ export class MercadopagoService {
     }
 
     async remove(id: string) {
-        const subscription = await Mercadopago.findOne({ where: { preapprovalId: id } });
+        const subscription = await Mercadopago.findOne({ where: { id } });
         if (subscription) {
             return subscription.destroy();
         }
@@ -102,7 +121,23 @@ export class MercadopagoService {
     }
 
     async handleWebhook(webhookData: any) {
-        console.log("webhook",webhookData)
-       
+        try {        
+            const preapprovalId = webhookData.data.id;
+            const webhookType = webhookData.type;
+    
+            if (webhookType === 'subscription_preapproval') {
+                await Mercadopago.create({
+                    preapprovalId
+                });
+        
+                console.log(`ID de preaprobación ${preapprovalId} guardado exitosamente en la base de datos`);
+            } else {
+                console.log(`Tipo de webhook no compatible: ${webhookType}`);
+            }
+        
+        } catch (error) {
+            console.error('Error handling webhook:', error.response ? error.response.data : error.message);
+            throw new InternalServerErrorException('Error al procesar el webhook');
+        }
     }
 }

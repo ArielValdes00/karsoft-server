@@ -8,8 +8,13 @@ dotenv.config();
 @Injectable()
 export class MercadopagoService {
 
-    async createSubscription() {
+    async createSubscription(userId: string) {
         try {
+            const existingSubscription = await Mercadopago.findOne({ where: { userId } });
+
+            if (existingSubscription) {
+                return existingSubscription.init_point;
+            }
             const response = await axios.post(`${process.env.URL_MERCADOPAGO}/preapproval_plan`, {
                 reason: "karsoft",
                 auto_recurring: {
@@ -21,7 +26,7 @@ export class MercadopagoService {
                         frequency: 7,
                         frequency_type: "days"
                     },
-                    transaction_amount: 10000,
+                    transaction_amount: 15,
                     currency_id: "ARS"
                 },
                 payment_methods_allowed: {
@@ -36,53 +41,75 @@ export class MercadopagoService {
                 }
             });
 
-            const { init_point } = response.data;
+            const { init_point, id } = response.data;
 
-            return init_point; 
+            const newSubscription = {
+                userId,
+                preapprovalId: id,
+                init_point
+            };
+
+            await Mercadopago.create(newSubscription);
+            return init_point;
         } catch (error) {
             console.error('Error creating subscription preference:', error.response ? error.response.data : error.message);
             throw new InternalServerErrorException('Error al crear la preferencia de suscripción');
         }
     }
 
-    async getSuscripcion(payer_email: string) {
+    async getSuscripcion(preapproval_plan_id: string) {
         try {
             const response = await axios.get(`${process.env.URL_MERCADOPAGO}/preapproval/search`, {
                 params: {
-                    payer_email: payer_email  
+                    preapproval_plan_id: preapproval_plan_id
                 },
                 headers: {
-                    'Authorization': `Bearer ${process.env.API_SECRET_MERCADOPAGO}` 
+                    'Authorization': `Bearer ${process.env.API_SECRET_MERCADOPAGO}`
                 }
             });
-    
-            return response.data; 
+
+            return response.data;
         } catch (error) {
             console.error('Error al obtener la suscripción:', error.response ? error.response.data : error.message);
             throw new InternalServerErrorException('Error al obtener la suscripción');
         }
     }
 
-    async cancelarSuscripcion(preapprovalId: string) {
+    async getSuscripcionById(id: string) {
         try {
-            const response = await axios.put(`${process.env.URL_MERCADOPAGO}/${preapprovalId}`, 
-            {
-                status: "cancelled"
-            }, 
-            {
+            const response = await axios.get(`${process.env.URL_MERCADOPAGO}/preapproval/${id}`, {
                 headers: {
-                    'Authorization': `Bearer ${process.env.API_SECRET_MERCADOPAGO}`,
-                    'Content-Type': 'application/json' 
+                    'Authorization': `Bearer ${process.env.API_SECRET_MERCADOPAGO}`
                 }
             });
-    
-            return response.data; 
+
+            return response.data;
+        } catch (error) {
+            console.error('Error al obtener la suscripción:', error.response ? error.response.data : error.message);
+            throw new InternalServerErrorException('Error al obtener la suscripción');
+        }
+    }
+
+    async cancelSuscription(preapprovalId: string) {
+        try {
+            const response = await axios.put(`${process.env.URL_MERCADOPAGO}/${preapprovalId}`,
+                {
+                    status: "cancelled"
+                },
+                {
+                    headers: {
+                        'Authorization': `Bearer ${process.env.API_SECRET_MERCADOPAGO}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+            return response.data;
         } catch (error) {
             console.error('Error al cancelar la suscripción:', error.response ? error.response.data : error.message);
             throw new InternalServerErrorException('Error al cancelar la suscripción');
         }
     }
-    
+
     async findAll() {
         const mercadopago = await Mercadopago.findAll();
         if (!mercadopago) {
@@ -91,18 +118,41 @@ export class MercadopagoService {
         return mercadopago;
     }
 
-    async findOne(id: string) {
+    async findOne(userId: string) {
         try {
-            const subscription = await Mercadopago.findOne({ where: { id } });
-            if (!subscription) {
-                throw new NotFoundException(`Suscripción con ID ${id} no encontrada`);
+            const subscription = await Mercadopago.findOne({ where: { userId } });
+            if (subscription) {
+                const response = await this.getSuscripcion(subscription.preapprovalId);
+                if(response){
+                    const preapproval_id = response?.results[0]?.id
+                    const res = await this.getSuscripcionById(preapproval_id);
+                    return res;
+                }
+            } else {
+                throw new NotFoundException(`Suscripción con ID ${userId} no encontrada`);
             }
-            return subscription;
         } catch (error) {
             throw new InternalServerErrorException('Error al obtener la suscripción');
         }
     }
 
+    async handleCancelSuscription(userId: string) {
+        try {
+            const subscription = await Mercadopago.findOne({ where: { userId } });
+            if (subscription) {
+                const response = await this.getSuscripcion(subscription.preapprovalId);
+                if(response){
+                    const preapproval_id = response?.results[0]?.id
+                    const res = await this.cancelSuscription(preapproval_id);
+                    return res;
+                }
+            } else {
+                throw new NotFoundException(`Suscripción con ID ${userId} no encontrada`);
+            }
+        } catch (error) {
+            throw new InternalServerErrorException('Error al obtener la suscripción');
+        }
+    }
 
     async update(id: string, updateMercadopagoDto: UpdateMercadopagoDto) {
         const subscription = await Mercadopago.findOne({ where: { id } });
@@ -121,23 +171,6 @@ export class MercadopagoService {
     }
 
     async handleWebhook(webhookData: any) {
-        try {        
-            const preapprovalId = webhookData.data.id;
-            const webhookType = webhookData.type;
-    
-            if (webhookType === 'subscription_preapproval') {
-                await Mercadopago.create({
-                    preapprovalId
-                });
-        
-                console.log(`ID de preaprobación ${preapprovalId} guardado exitosamente en la base de datos`);
-            } else {
-                console.log(`Tipo de webhook no compatible: ${webhookType}`);
-            }
-        
-        } catch (error) {
-            console.error('Error handling webhook:', error.response ? error.response.data : error.message);
-            throw new InternalServerErrorException('Error al procesar el webhook');
-        }
+        console.log(webhookData)
     }
 }

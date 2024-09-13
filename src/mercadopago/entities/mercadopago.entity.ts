@@ -9,4 +9,10 @@ export class Mercadopago extends Model<Mercadopago> {
 
   @Column({ type: DataType.STRING })
   preapprovalId: string;
+
+  @Column({ type: DataType.STRING })
+  userId: string;
+
+  @Column({ type: DataType.STRING })
+  init_point: string;
 }

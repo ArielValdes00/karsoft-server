@@ -5,40 +5,40 @@ import { UpdateMercadopagoDto } from './dto/update-mercadopago.dto';
 
 @Controller('mercadopago')
 export class MercadopagoController {
-  constructor(private readonly mercadopagoService: MercadopagoService) {}
+    constructor(private readonly mercadopagoService: MercadopagoService) { }
 
-  @Post()
-  create() {
-    return this.mercadopagoService.createSubscription();
-  }
-  
-  @Get()
-  findAll() {
-    return this.mercadopagoService.findAll();
-  }
+    @Post(':id')
+    create(@Param('id') userId: string) {
+        return this.mercadopagoService.createSubscription(userId);
+    }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.mercadopagoService.findOne(id);
-  }
+    @Get()
+    findAll() {
+        return this.mercadopagoService.findAll();
+    }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMercadopagoDto: UpdateMercadopagoDto) {
-    return this.mercadopagoService.update(id, updateMercadopagoDto);
-  }
+    @Get(':id')
+    findOne(@Param('id') id: string) {
+        return this.mercadopagoService.findOne(id);
+    }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.mercadopagoService.remove(id);
-  }
+    @Patch(':id')
+    update(@Param('id') id: string, @Body() updateMercadopagoDto: UpdateMercadopagoDto) {
+        return this.mercadopagoService.update(id, updateMercadopagoDto);
+    }
 
-  @Post('webhook')
-  @HttpCode(200)  
-  async handleWebhook(
-    @Body() webhookData: any, 
-    @Headers('x-signature') signature: string
-  ) {
-    
-    return this.mercadopagoService.handleWebhook(webhookData);
-  }
+    @Delete(':id')
+    remove(@Param('id') id: string) {
+        return this.mercadopagoService.remove(id);
+    }
+
+    @Post('webhook')
+    @HttpCode(200)
+    async handleWebhook(
+        @Body() webhookData: any,
+        @Headers('x-signature') signature: string
+    ) {
+
+        return this.mercadopagoService.handleWebhook(webhookData);
+    }
 }

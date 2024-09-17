@@ -15,7 +15,7 @@ export class AuthController {
         try {
             const user = await this.authService.register(createUserDto);
             const { access_token } = await this.authService.login(createUserDto.email, createUserDto.password);
-            return res.status(HttpStatus.OK).json({ success: true, access_token });
+            return res.status(HttpStatus.OK).json({ success: true, access_token, id: user.dataValues.id });
         } catch (error) {
             if (error.code === '23505') {
                 throw new HttpException('User already exists', HttpStatus.CONFLICT);

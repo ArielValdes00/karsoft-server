@@ -1,13 +1,16 @@
-import { Column, DataType, Default, HasMany, Model, Table } from 'sequelize-typescript';
-import { Employee } from 'src/employee/entities/employee.entity';
-import { UserAuth } from 'src/utils/types';
+import { Column, DataType, Default, Table, Model, ForeignKey, BelongsTo, HasMany, BelongsToMany, PrimaryKey } from 'sequelize-typescript';
 import { v4 as uuidv4 } from 'uuid';
+import { Branch } from 'src/branch/entities/branch.entity';
+import { UserBranch } from 'src/user-branch/entities/user-branch.entity';
+import { Client } from 'src/client/entities/client.entity';
+import { Order } from 'src/order/entities/order.entity';
 
 @Table({ tableName: 'users' })
-export class User extends Model<User> implements UserAuth {
+export class User extends Model<User> {
+    @PrimaryKey
     @Default(uuidv4)
     @Column({ type: DataType.UUID, unique: true })
-    uuid: string;
+    id: string;
 
     @Column({ type: DataType.STRING })
     name: string;
@@ -19,20 +22,27 @@ export class User extends Model<User> implements UserAuth {
     password: string;
 
     @Column({ type: DataType.STRING })
-    phone_number: string;
-
-    @Column({ type: DataType.STRING, allowNull: true })
     avatar: string;
 
     @Column({ type: DataType.STRING })
-    business_name: string;
+    phone_number: string;
 
     @Column({ type: DataType.STRING })
-    address: string;
+    status: string;
 
-    @Column({ type: DataType.STRING })
-    postal_code: string;
+    @BelongsToMany(() => Branch, () => UserBranch)
+    branches: Branch[];
 
-    @HasMany(() => Employee)
-    employees: Employee[];
+    @Column({
+        type: DataType.ENUM,
+        values: ['admin', 'user'],
+        allowNull: false,
+    })
+    role: "admin" | "user";
+
+    @HasMany(() => Client)
+    clients: Client[];
+
+    @HasMany(() => Order)
+    orders: Order[];
 }

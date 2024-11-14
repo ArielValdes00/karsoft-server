@@ -6,9 +6,7 @@ import { JwtStrategy } from './jwt.strategy';
 import { AuthController } from './auth.controller';
 import { UserService } from 'src/user/user.service';
 import * as dotenv from 'dotenv';
-import { EmployeeModule } from 'src/employee/employee.module';
 import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
-import { MailService } from './mail.service';
 import { MailModule } from './mail.module';
 
 dotenv.config();
@@ -17,7 +15,6 @@ dotenv.config();
         PassportModule,
         CloudinaryModule,
         MailModule,
-        forwardRef(() => EmployeeModule),
         JwtModule.register({
             secret: process.env.JWT_SECRET,
             signOptions: { expiresIn: '1h' },

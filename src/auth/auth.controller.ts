@@ -8,21 +8,27 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('auth')
 export class AuthController {
-    constructor(private readonly authService: AuthService) { }
+    constructor(
+        private readonly authService: AuthService,
+    ) { }
 
-    @Post('/register')
+    @Post('register')
     async register(@Body() createUserDto: CreateUserDto, @Res() res: Response) {
         try {
             const user = await this.authService.register(createUserDto);
+
             const { access_token } = await this.authService.login(createUserDto.email, createUserDto.password);
-            return res.status(HttpStatus.OK).json({ success: true, access_token, id: user.dataValues.id });
+
+            return res.status(HttpStatus.OK).json({ success: true, access_token, id: user.id });
         } catch (error) {
+            console.log(error);
             if (error.code === '23505') {
                 throw new HttpException('User already exists', HttpStatus.CONFLICT);
             }
             throw new HttpException('Internal server error', HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 
     @Post('login')
     async login(@Req() req, @Res() res: Response) {

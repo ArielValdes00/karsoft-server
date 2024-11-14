@@ -2,8 +2,9 @@ import { BadRequestException, Injectable, NotFoundException, UnauthorizedExcepti
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
-import * as bcrypt from 'bcrypt';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { Branch } from 'src/branch/entities/branch.entity';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class UserService {
@@ -18,34 +19,47 @@ export class UserService {
         await user.update({ password: newPassword });
     }
 
-    async create(createUserDto: CreateUserDto): Promise<number> {
-        const { name, email, password, phone_number, business_name, address, postal_code } = createUserDto;
+    async create(createUserDto: CreateUserDto): Promise<string> {
+        const { name, email, password, phone_number } = createUserDto;
         const uniqueMail = await User.findOne({ where: { email: email } });
         if (uniqueMail) {
             throw new BadRequestException('El usuario ya existe');
         }
-        const hashedPassword = await bcrypt.hash(password, 10);
         const user = await User.create({
             name,
             email,
-            password: hashedPassword,
+            password,
             phone_number,
-            business_name,
-            address,
-            postal_code,
+            role: "admin"
         });
         return user.id;
     }
 
-    async findAll(): Promise<User[]> {
-        const users = await User.findAll();
-        if (!users) {
-            throw new NotFoundException('No se pudieron encontrar los usuarios');
+    async findAll(role?: string, search?: string): Promise<User[]> {
+        const whereConditions: any = {};
+    
+        if (role) {
+            whereConditions.role = role;
         }
+    
+        if (search) {
+            whereConditions.name = { [Op.iLike]: `%${search}%` };
+        }
+    
+        const users = await User.findAll({
+            where: whereConditions,
+            attributes: { exclude: ['password'] },
+            include: [{ model: Branch, through: { attributes: [] } }],
+        });
+    
+        if (!users || users.length === 0) {
+            throw new NotFoundException('No se encontraron usuarios');
+        }
+    
         return users;
     }
-
-    async findOne(id: number): Promise<User> {
+    
+    async findOne(id: string): Promise<User> {
         const user = await User.findByPk(id);
         if (!user) {
             throw new NotFoundException(`Usuario con ID ${id} no encontrado`);

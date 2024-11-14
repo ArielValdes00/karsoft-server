@@ -1,11 +1,11 @@
-import { Controller, Get, Post, Body, Param, Delete, UseGuards, Put, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, UseGuards, Put, UseInterceptors, UploadedFile, Query } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 
-@Controller('user')
+@Controller('users')
 @UseGuards(JwtAuthGuard)
 export class UserController {
     constructor(private readonly userService: UserService) { }
@@ -16,13 +16,13 @@ export class UserController {
     }
 
     @Get()
-    findAll() {
-        return this.userService.findAll();
+    async findAll(@Query('role') role?: string, @Query('search') search?: string) {
+        return this.userService.findAll(role, search);
     }
 
     @Get(':id')
     findOne(@Param('id') id: string) {
-        return this.userService.findOne(+id);
+        return this.userService.findOne(id);
     }
 
     @Put(':id')

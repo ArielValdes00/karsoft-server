@@ -15,9 +15,16 @@ async function bootstrap() {
         transform: true,
       }));
       app.enableCors({
-        origin: true, // Permite todos los orígenes (útil para desarrollo, pero no recomendado en producción).
-        credentials: true, // Si estás usando cookies, habilita esto.
-    });
+        origin: (origin, callback) => {
+          const allowedOrigins = [process.env.FRONTEND_URL, 'http://localhost:4000'];
+          if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+          } else {
+            callback(new Error('Not allowed by CORS'), false);
+          }
+        },
+      });
+      
     await app.listen(process.env.PORT || 4000);
 }
 bootstrap();

@@ -14,17 +14,9 @@ async function bootstrap() {
         forbidNonWhitelisted: true,
         transform: true,
       }));
-      app.enableCors({
-        origin: (origin, callback) => {
-          const allowedOrigins = [process.env.FRONTEND_URL, 'http://localhost:4000'];
-          if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-          } else {
-            callback(new Error('Not allowed by CORS'), false);
-          }
-        },
-      });
-      
+    app.enableCors({
+        origin: true, 
+    });
     await app.listen(process.env.PORT || 4000);
 }
 bootstrap();

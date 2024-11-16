@@ -29,10 +29,25 @@ export class AuthController {
         }
     }
 
+    @Get('me')
+    @UseGuards(JwtAuthGuard) 
+    async getMe(@Req() req, @Res() res: Response) {
+        try {
+            const { user } = req;
+            if (user) {
+                return res.status(HttpStatus.OK).json({ success: true, user });
+            } else {
+                return res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: 'Usuario no autenticado' });
+            }
+        } catch (error) {
+            return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Error al obtener información del usuario' });
+        }
+    }
 
     @Post('login')
     async login(@Req() req, @Res() res: Response) {
         const { email, password } = req.body;
+        console.log(req)
         try {
             const { access_token } = await this.authService.login(email, password);
             return res.status(HttpStatus.OK).json({ success: true, access_token });

@@ -14,8 +14,9 @@ async function bootstrap() {
         forbidNonWhitelisted: true,
         transform: true,
       }));
-    app.enableCors({
-        origin: [process.env.FRONTEND_URL], 
+      app.enableCors({
+        origin: true, // Permite todos los orígenes (útil para desarrollo, pero no recomendado en producción).
+        credentials: true, // Si estás usando cookies, habilita esto.
     });
     await app.listen(process.env.PORT || 4000);
 }

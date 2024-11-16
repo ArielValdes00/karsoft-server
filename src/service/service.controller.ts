@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { ServiceService } from './service.service';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
@@ -17,14 +17,12 @@ export class ServiceController {
         return this.serviceService.create(createServiceDto, branchId);
     }
 
-    @Get()
-    findAll() {
-        return this.serviceService.findAll();
-    }
-
-    @Get('buildings/:branchId')
-    async findAllByBranchId(@Param('branchId') branchId: string) {
-        return this.serviceService.findAllByBranchId(branchId);
+    @Get(':branchId')
+    async findAllByBranchId(
+        @Param('branchId') branchId: string,
+        @Query('search') search?: string
+    ) {
+        return this.serviceService.findAllByBranchId(branchId, search);
     }
 
     @Get(':id')

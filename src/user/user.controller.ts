@@ -15,6 +15,15 @@ export class UserController {
         return this.userService.create(createUserDto);
     }
 
+    @Post(':branchId/:creatorId')
+    async createUser(
+        @Param('branchId') branchId: string,
+        @Param('creatorId') creatorId: string,
+        @Body() createUserDto: CreateUserDto 
+    ) {
+        return this.userService.createUserByAdminOrOwner(createUserDto, creatorId, branchId);
+    }
+
     @Get()
     async findAll(@Query('role') role?: string, @Query('search') search?: string) {
         return this.userService.findAll(role, search);
@@ -27,17 +36,17 @@ export class UserController {
 
     @Put(':id')
     update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-        return this.userService.update(+id, updateUserDto);
+        return this.userService.update(id, updateUserDto);
     }
 
     @Delete(':id')
     remove(@Param('id') id: string) {
-        return this.userService.remove(+id);
+        return this.userService.remove(id);
     }
 
     @Post(':id/upload')
     @UseInterceptors(FileInterceptor('file'))
     async uploadImage(@Param('id') id: string, @UploadedFile() file: Express.Multer.File) {
-        return this.userService.uploadImage(+id, file);
+        return this.userService.uploadImage(id, file);
     }
 }

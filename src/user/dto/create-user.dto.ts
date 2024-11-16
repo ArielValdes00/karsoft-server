@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString, Length } from 'class-validator';
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, Length } from 'class-validator';
 
 export class CreateUserDto {
     @IsNotEmpty({ message: 'El nombre es obligatorio' })
@@ -33,7 +33,7 @@ export class CreateUserDto {
     @IsOptional()
     branches?: string;
 
-    @IsString()
     @IsOptional()
-    role?: string;
+    @IsEnum(['owner', 'admin', 'user'], { message: 'El rol debe ser uno de los siguientes: owner, admin, user' })
+    role?: 'owner' | 'admin' | 'user';
 }

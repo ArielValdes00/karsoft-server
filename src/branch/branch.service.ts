@@ -14,31 +14,60 @@ export class BranchService {
 
     async create(createBranchDto: CreateBranchDto, userId: string): Promise<Branch> {
         try {
-            const existingBranch = await Branch.findOne({
-                where: { name: createBranchDto.name }
+            const user = await User.findByPk(userId, {
+                include: [{ model: Branch, through: { attributes: [] } }],
             });
     
-            if (existingBranch) {
-                throw new Error('A branch with this name already exists');
-            }
-    
-            const branch = await Branch.create(createBranchDto);
-    
-            const user = await User.findByPk(userId);
             if (!user) {
                 throw new NotFoundException('User not found');
             }
     
+            let ownerId: string;
+    
+            if (user.branches && user.branches.length > 0) {
+                const owner = await User.findOne({
+                    include: [{
+                        model: Branch,
+                        through: { attributes: [] },
+                        where: { id: user.branches[0].id },
+                    }],
+                    where: { role: 'owner' },
+                });
+    
+                if (!owner) {
+                    throw new Error('No owner found for the existing branch');
+                }
+    
+                ownerId = owner.id;
+            } else {
+                ownerId = userId;
+    
+                if (user.role !== 'owner') {
+                    user.role = 'owner';
+                    await user.save();
+                }
+            }
+    
+            const branch = await Branch.create(createBranchDto);
+    
             await UserBranch.create({
-                userId: userId,
-                branchId: branch.id
+                userId: ownerId,
+                branchId: branch.id,
             });
+    
+            if (userId !== ownerId) {
+                await UserBranch.create({
+                    userId: userId,
+                    branchId: branch.id,
+                });
+            }
     
             return branch;
         } catch (error) {
             throw error;
         }
     }
+    
 
     async findAllByUserId(
         userId: string,

@@ -56,18 +56,20 @@ export class OrderService {
         return order;
     }
 
-    async findAll() {
+    async findAll(branchId: string) {
         const orders = await Order.findAll({
+            where: { branchId },
             include: [
                 { model: Client },
                 { model: PaymentMethod },
                 { model: User },
                 { model: Branch },
                 { model: Service },
-            ]
+            ],
         });
+    
         return orders;
-    }
+    }    
 
     async findOne(id: string) {
         const order = await Order.findByPk(id, {

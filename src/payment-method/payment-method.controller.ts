@@ -15,9 +15,9 @@ export class PaymentMethodController {
         return this.paymentMethodService.create(branchId, createPaymentMethodDto);
     }
 
-    @Get()
-    findAll() {
-        return this.paymentMethodService.findAll();
+    @Get(':branchId')
+    findAll(@Param('branchId') branchId: string) {
+        return this.paymentMethodService.findAll(branchId);
     }
 
     @Get(':id')

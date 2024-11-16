@@ -85,9 +85,8 @@ export class AuthService {
             email,
             password: hashedPassword,
             phone_number,
-            role: "admin", 
+            role: "owner", 
         });
-        console.log(user)
         return user;
     }
 

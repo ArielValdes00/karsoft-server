@@ -15,9 +15,9 @@ export class OrderController {
         return await this.orderService.create(createOrderDto, branchId);
     }
 
-    @Get()
-    findAll() {
-        return this.orderService.findAll();
+    @Get(':branchId')
+    async findAll(@Param('branchId') branchId: string) {
+        return this.orderService.findAll(branchId);
     }
 
     @Get(':id')

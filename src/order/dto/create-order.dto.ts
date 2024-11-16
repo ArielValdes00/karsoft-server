@@ -1,4 +1,4 @@
-import { IsUUID, IsString, IsOptional, IsNumber } from 'class-validator';
+import { IsUUID, IsString, IsOptional, IsNumber, IsDateString, IsEnum } from 'class-validator';
 
 export class CreateOrderDto {
     @IsUUID()
@@ -26,4 +26,14 @@ export class CreateOrderDto {
 
     @IsNumber()
     total: number;
+
+    @IsOptional()
+    start_date?: Date;
+
+    @IsOptional()
+    end_date?: Date;
+
+    @IsEnum(['finalizado', 'en proceso', 'sin empezar'])
+    @IsOptional()
+    status?: 'finalizado' | 'en proceso' | 'sin empezar';
 }

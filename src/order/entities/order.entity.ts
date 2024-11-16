@@ -56,4 +56,16 @@ export class Order extends Model<Order> {
 
     @BelongsToMany(() => Service, () => OrderService)
     services: Service[];
+
+    @Column({ type: DataType.DATE })
+    start_date: Date;
+
+    @Column({ type: DataType.DATE })
+    end_date: Date;
+
+    @Column({ 
+        type: DataType.ENUM('finalizado', 'en proceso', 'sin empezar'),
+        defaultValue: 'sin empezar' 
+    })
+    status: 'finalizado' | 'en proceso' | 'sin empezar';
 }

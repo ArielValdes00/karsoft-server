@@ -5,6 +5,10 @@ export class CreateUserDto {
     @Length(2, 50, { message: 'El nombre debe tener entre 2 y 50 caracteres' })
     name: string;
 
+    @IsNotEmpty({ message: 'El apellido es obligatorio' })
+    @Length(2, 50, { message: 'El apellido debe tener entre 2 y 50 caracteres' })
+    lastname: string;
+
     @IsEmail({}, { message: 'El correo electrónico no es válido' })
     @IsNotEmpty({ message: 'El correo electrónico es obligatorio' })
     email: string;

@@ -19,6 +19,18 @@ export class Branch extends Model<Branch> {
     @Column({ type: DataType.STRING })
     address: string;
 
+    @Column({ type: DataType.STRING })
+    postal_code: string; 
+
+    @Column({ type: DataType.STRING })
+    neighborhood: string;
+
+    @Column({ type: DataType.STRING })
+    province: string;
+
+    @Column({ type: DataType.STRING })
+    country: string;
+
     @BelongsToMany(() => User, () => UserBranch)
     users: User[];
 

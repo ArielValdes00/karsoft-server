@@ -15,6 +15,9 @@ export class User extends Model<User> {
     @Column({ type: DataType.STRING })
     name: string;
 
+    @Column({ type: DataType.STRING })
+    lastname: string;
+
     @Column({ type: DataType.STRING, unique: true })
     email: string;
 

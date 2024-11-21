@@ -67,7 +67,7 @@ export class AuthService {
     }
 
     async register(createUserDto: CreateUserDto): Promise<any> {
-        const { name, email, password, confirm_password, phone_number } = createUserDto;
+        const { name, lastname, email, password, confirm_password, phone_number } = createUserDto;
 
         if (password !== confirm_password) {
             throw new BadRequestException('Las contraseñas no coinciden');
@@ -82,6 +82,7 @@ export class AuthService {
 
         const user = await this.userService.create({
             name,
+            lastname,
             email,
             password: hashedPassword,
             phone_number,

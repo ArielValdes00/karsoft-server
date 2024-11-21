@@ -21,7 +21,7 @@ export class UserService {
     }
 
     async create(createUserDto: CreateUserDto): Promise<string> {
-        const { name, email, password, phone_number, role } = createUserDto;
+        const { name, lastname, email, password, phone_number, role } = createUserDto;
 
         const uniqueMail = await User.findOne({ where: { email: email } });
         if (uniqueMail) {
@@ -35,6 +35,7 @@ export class UserService {
 
         const user = await User.create({
             name,
+            lastname,
             email,
             password,
             phone_number,
@@ -45,7 +46,7 @@ export class UserService {
     }
 
     async createUserByAdminOrOwner(createUserDto: CreateUserDto, creatorId: string, branchId: string): Promise<any> {
-        const { name, email, password, phone_number } = createUserDto;
+        const { name, lastname, email, password, phone_number } = createUserDto;
     
         const creator = await User.findOne({ where: { id: creatorId } });
         if (!creator) {
@@ -65,6 +66,7 @@ export class UserService {
     
         const user = await User.create({
             name,
+            lastname,
             email,
             password: hashedPassword,
             phone_number,

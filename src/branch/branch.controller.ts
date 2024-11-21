@@ -22,7 +22,7 @@ export class BranchController {
         return this.branchService.findAll();
     }
 
-    @Get('users/:userId')
+    @Get(':userId')
     async findAllByUserId(@Param('userId') userId: string) {
         return this.branchService.findAllByUserId(userId);
     }

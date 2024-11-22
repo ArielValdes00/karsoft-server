@@ -42,8 +42,8 @@ export class BranchService {
             } else {
                 ownerId = userId;
     
-                if (user.role !== 'owner') {
-                    user.role = 'owner';
+                if (user.role !== 'dueño') {
+                    user.role = 'dueño';
                     await user.save();
                 }
             }

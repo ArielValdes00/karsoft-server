@@ -43,10 +43,10 @@ export class User extends Model<User> {
 
     @Column({
         type: DataType.ENUM,
-        values: ['owner', 'admin', 'user'],
+        values: ['dueño', 'admin', 'empleado'],
         allowNull: false,
     })
-    role: "owner" | "admin" | "user";    
+    role: "dueño" | "admin" | "empleado";    
 
     @HasMany(() => Client)
     clients: Client[];

@@ -28,8 +28,8 @@ export class UserService {
             throw new BadRequestException('El usuario ya existe');
         }
 
-        const validatedRole = role || 'user';
-        if (!['owner', 'admin', 'user'].includes(validatedRole)) {
+        const validatedRole = role || 'empleado';
+        if (!['dueño', 'admin', 'empleado'].includes(validatedRole)) {
             throw new BadRequestException('Rol no válido');
         }
 
@@ -53,7 +53,7 @@ export class UserService {
             throw new NotFoundException(`Usuario con ID ${creatorId} no encontrado`);
         }
     
-        if (creator.role !== 'admin' && creator.role !== 'owner') {
+        if (creator.role !== 'admin' && creator.role !== 'dueño') {
             throw new UnauthorizedException('No tienes permisos para crear usuarios');
         }
     
@@ -70,7 +70,7 @@ export class UserService {
             email,
             password: hashedPassword,
             phone_number,
-            role: 'user',
+            role: 'empleado',
         });
     
         const branch = await Branch.findOne({ where: { id: branchId } });

@@ -38,6 +38,6 @@ export class CreateUserDto {
     branches?: string;
 
     @IsOptional()
-    @IsEnum(['owner', 'admin', 'user'], { message: 'El rol debe ser uno de los siguientes: owner, admin, user' })
-    role?: 'owner' | 'admin' | 'user';
+    @IsEnum(['dueño', 'admin', 'empleado'], { message: 'El rol debe ser uno de los siguientes: dueño, admin, empleado' })
+    role?: 'dueño' | 'admin' | 'empleado';
 }

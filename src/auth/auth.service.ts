@@ -86,7 +86,7 @@ export class AuthService {
             email,
             password: hashedPassword,
             phone_number,
-            role: "owner", 
+            role: "dueño", 
         });
         return user;
     }

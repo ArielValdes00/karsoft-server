@@ -113,12 +113,23 @@ export class UserService {
     }
 
     async findOne(id: string): Promise<User> {
-        const user = await User.findByPk(id);
+        const user = await User.findByPk(id, {
+            include: [
+                {
+                    model: Branch,
+                    through: { attributes: [] },
+                    attributes: ['name'], 
+                },
+            ],
+        });
+    
         if (!user) {
             throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
         }
+    
         return user;
     }
+    
 
     async findByEmail(email: string): Promise<any> {
         return User.findOne({ where: { email } });

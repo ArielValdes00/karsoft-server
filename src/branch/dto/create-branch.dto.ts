@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsEnum } from 'class-validator';
 
 export class CreateBranchDto {
     @IsString()
@@ -24,4 +24,8 @@ export class CreateBranchDto {
     @IsString()
     @IsNotEmpty({ message: 'El país es obligatorio' })
     country: string; 
+
+    @IsOptional()
+    @IsEnum(['activo', 'inactivo'], { message: 'El status debe ser activo u inactivo' })
+    status?: 'activo' | 'inactivo'; 
 }

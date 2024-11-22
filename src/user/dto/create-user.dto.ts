@@ -29,9 +29,9 @@ export class CreateUserDto {
     @IsOptional()
     avatar?: string;
 
-    @IsString()
     @IsOptional()
-    status?: string;
+    @IsEnum(['activo', 'inactivo'], { message: 'El status debe ser activo u inactivo' })
+    status?: 'activo' | 'inactivo'; 
 
     @IsString()
     @IsOptional()

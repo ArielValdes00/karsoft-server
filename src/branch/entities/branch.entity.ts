@@ -20,7 +20,7 @@ export class Branch extends Model<Branch> {
     address: string;
 
     @Column({ type: DataType.STRING })
-    postal_code: string; 
+    postal_code: string;
 
     @Column({ type: DataType.STRING })
     neighborhood: string;
@@ -31,13 +31,21 @@ export class Branch extends Model<Branch> {
     @Column({ type: DataType.STRING })
     country: string;
 
+    @Column({
+        type: DataType.ENUM,
+        values: ["activo", "inactivo"],
+        allowNull: true,
+        defaultValue: "activo"
+    })
+    status: "activo" | "inactivo";
+
     @BelongsToMany(() => User, () => UserBranch)
     users: User[];
 
     @HasMany(() => Service)
     services: Service[];
 
-    @HasMany(() => Client) 
+    @HasMany(() => Client)
     clients: Client[];
 
     @HasMany(() => PaymentMethod)

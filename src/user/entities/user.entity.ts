@@ -30,8 +30,13 @@ export class User extends Model<User> {
     @Column({ type: DataType.STRING })
     phone_number: string;
 
-    @Column({ type: DataType.STRING })
-    status: string;
+    @Column({
+        type: DataType.ENUM,
+        values: ["activo", "inactivo"],
+        allowNull: false,
+        defaultValue: "activo"
+    })
+    status: "activo" | "inactivo";
 
     @BelongsToMany(() => Branch, () => UserBranch)
     branches: Branch[];

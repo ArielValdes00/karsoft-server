@@ -19,32 +19,32 @@ export class AuthService {
         if (newPassword !== confirmPassword) {
             throw new BadRequestException('Passwords do not match');
         }
-    
+
         try {
             const { email, userType } = this.jwtService.verify(token);
-    
+
             let user: any;
-    
+
             if (userType === 'user') {
                 user = await this.userService.findByEmail(email);
-            } 
-    
+            }
+
             if (!user) {
                 throw new NotFoundException('User or employee not found');
             }
-    
+
             const hashedPassword = await bcrypt.hash(newPassword, 10);
-    
+
             if (userType === 'user') {
                 await this.userService.updatePassword(user.id, hashedPassword);
-            } 
-    
+            }
+
             return { ok: true };
-    
+
         } catch (error) {
             throw new UnauthorizedException('Invalid or expired token');
         }
-    }    
+    }
 
     async forgotPassword(email: string): Promise<{ ok: boolean }> {
         let user = await this.userService.findByEmail(email);
@@ -53,7 +53,7 @@ export class AuthService {
         if (!user) {
             throw new NotFoundException('Invalid credentials');
         }
-        
+
         const token = this.jwtService.sign({ email: user.email, userType }, { expiresIn: '1h' });
         const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
         await this.mailService.sendResetPasswordEmail(user.email, resetUrl);
@@ -86,7 +86,7 @@ export class AuthService {
             email,
             password: hashedPassword,
             phone_number,
-            role: "dueño", 
+            role: "dueño",
         });
         return user;
     }
@@ -102,15 +102,23 @@ export class AuthService {
         if (!passwordMatch) {
             throw new UnauthorizedException('La contra no es');
         }
-    
+
+        let currentBranchId = user.currentBranchId;
+
+        if (!currentBranchId && user.branches && user.branches.length > 0) {
+            currentBranchId = user.branches[0].id;
+            await this.userService.setActiveBranch(user.id, currentBranchId);
+        }
+
         const payload = {
             sub: user.id,
             email: user.email,
             name: user.name,
             avatar: user.avatar,
             role: user.role,
+            currentBranchId: currentBranchId,
         };
-    
+
         return {
             access_token: this.jwtService.sign(payload),
         };

@@ -38,6 +38,9 @@ export class User extends Model<User> {
     })
     status: "activo" | "inactivo";
 
+    @Column({ type: DataType.UUID, allowNull: true })
+    currentBranchId: string; 
+
     @BelongsToMany(() => Branch, () => UserBranch)
     branches: Branch[];
 

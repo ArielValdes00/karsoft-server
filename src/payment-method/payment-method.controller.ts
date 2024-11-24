@@ -7,12 +7,13 @@ import { UpdatePaymentMethodDto } from './dto/update-payment-method.dto';
 export class PaymentMethodController {
     constructor(private readonly paymentMethodService: PaymentMethodService) { }
 
-    @Post(':branchId')
+    @Post(':branchId/:userId')
     create(
         @Param('branchId') branchId: string,
+        @Param('userId') userId: string,
         @Body() createPaymentMethodDto: CreatePaymentMethodDto
     ) {
-        return this.paymentMethodService.create(branchId, createPaymentMethodDto);
+        return this.paymentMethodService.create(branchId, userId, createPaymentMethodDto);
     }
 
     @Get(':branchId')

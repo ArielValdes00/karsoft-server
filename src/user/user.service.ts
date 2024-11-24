@@ -39,7 +39,7 @@ export class UserService {
             email,
             password,
             phone_number,
-            role: validatedRole, 
+            role: validatedRole,
         });
 
         return user.id;
@@ -47,23 +47,23 @@ export class UserService {
 
     async createUserByAdminOrOwner(createUserDto: CreateUserDto, creatorId: string, branchId: string): Promise<any> {
         const { name, lastname, email, password, phone_number } = createUserDto;
-    
+
         const creator = await User.findOne({ where: { id: creatorId } });
         if (!creator) {
             throw new NotFoundException(`Usuario con ID ${creatorId} no encontrado`);
         }
-    
+
         if (creator.role !== 'admin' && creator.role !== 'dueño') {
             throw new UnauthorizedException('No tienes permisos para crear usuarios');
         }
-    
+
         const isUnique = await this.isEmailUnique(email);
         if (!isUnique) {
             throw new BadRequestException('El correo electrónico ya está en uso');
         }
-    
+
         const hashedPassword = await bcrypt.hash(password, 10);
-    
+
         const user = await User.create({
             name,
             lastname,
@@ -72,17 +72,17 @@ export class UserService {
             phone_number,
             role: 'empleado',
         });
-    
+
         const branch = await Branch.findOne({ where: { id: branchId } });
         if (!branch) {
             throw new NotFoundException(`Branch con ID ${branchId} no encontrado`);
         }
-    
-        await user.$set('branches', [branchId]); 
-    
+
+        await user.$set('branches', [branchId]);
+
         return user;
     }
-    
+
     private async isEmailUnique(email: string): Promise<boolean> {
         const user = await this.findByEmail(email);
         return !user;
@@ -118,23 +118,32 @@ export class UserService {
                 {
                     model: Branch,
                     through: { attributes: [] },
-                    attributes: ['name'], 
+                    attributes: ['name'],
                 },
             ],
         });
-    
+
         if (!user) {
             throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
         }
-    
+
         return user;
     }
-    
 
     async findByEmail(email: string): Promise<any> {
-        return User.findOne({ where: { email } });
-    }
+        const user = await User.findOne({
+            where: { email },
+            include: [
+                {
+                    model: Branch,
+                    through: { attributes: [] },
+                    attributes: ['id', 'name'],
+                },
+            ],
+        });
 
+        return user
+    }
     async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
         const user = await User.findByPk(id);
         if (!user) {
@@ -166,6 +175,13 @@ export class UserService {
         } catch (error) {
             throw new BadRequestException(`Error subiendo la imagen: ${error.message}`);
         }
+    }
+
+    async setActiveBranch(userId: string, branchId: string): Promise<void> {
+        await User.update(
+            { currentBranchId: branchId },
+            { where: { id: userId } }
+        );
     }
 
 }

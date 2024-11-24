@@ -2,6 +2,7 @@ import { Column, DataType, Default, Table, Model, PrimaryKey, HasMany, ForeignKe
 import { v4 as uuidv4 } from 'uuid';
 import { Order } from 'src/order/entities/order.entity';
 import { Branch } from 'src/branch/entities/branch.entity';
+import { User } from 'src/user/entities/user.entity';
 
 @Table({ tableName: 'payment_methods' })
 export class PaymentMethod extends Model<PaymentMethod> {
@@ -18,6 +19,20 @@ export class PaymentMethod extends Model<PaymentMethod> {
 
     @Column({ type: DataType.FLOAT, defaultValue: 0 })
     extra: number;
+
+    @Column({
+        type: DataType.DATE,
+        defaultValue: DataType.NOW,
+        allowNull: false,
+    })
+    created_date: Date;
+
+    @ForeignKey(() => User)
+    @Column({ type: DataType.UUID, allowNull: false })
+    created_by: string;
+
+    @BelongsTo(() => User)
+    creator: User;
 
     @HasMany(() => Order)
     orders: Order[];

@@ -47,7 +47,6 @@ export class AuthController {
     @Post('login')
     async login(@Req() req, @Res() res: Response) {
         const { email, password } = req.body;
-        console.log(req)
         try {
             const { access_token } = await this.authService.login(email, password);
             return res.status(HttpStatus.OK).json({ success: true, access_token });

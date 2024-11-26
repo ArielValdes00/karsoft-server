@@ -144,6 +144,7 @@ export class UserService {
 
         return user
     }
+    
     async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
         const user = await User.findByPk(id);
         if (!user) {

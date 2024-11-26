@@ -93,23 +93,28 @@ export class AuthService {
 
     async login(email: string, password: string) {
         let user = await this.userService.findByEmail(email);
-
+    
         if (!user) {
             throw new UnauthorizedException('No hay email');
         }
-
+    
         const passwordMatch = await bcrypt.compare(password, user.password);
         if (!passwordMatch) {
             throw new UnauthorizedException('La contra no es');
         }
-
+    
         let currentBranchId = user.currentBranchId;
-
+    
         if (!currentBranchId && user.branches && user.branches.length > 0) {
             currentBranchId = user.branches[0].id;
             await this.userService.setActiveBranch(user.id, currentBranchId);
         }
-
+    
+        const branchesInfo = user.branches.map(branch => ({
+            id: branch.id,
+            name: branch.name,
+        }));
+    
         const payload = {
             sub: user.id,
             email: user.email,
@@ -117,8 +122,9 @@ export class AuthService {
             avatar: user.avatar,
             role: user.role,
             currentBranchId: currentBranchId,
+            branches: branchesInfo,
         };
-
+    
         return {
             access_token: this.jwtService.sign(payload),
         };

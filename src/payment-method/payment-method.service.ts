@@ -6,6 +6,7 @@ import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class PaymentMethodService {
+    
     async create(
         branchId: string,
         userId: string,
@@ -13,25 +14,24 @@ export class PaymentMethodService {
     ): Promise<PaymentMethod> {
         const paymentMethod = await PaymentMethod.create({
             ...createPaymentMethodDto,
-            branchId,                 
-            created_by: userId,     
-            created_date: new Date(), 
+            branchId,
+            created_by: userId,
+            created_date: new Date(),
         });
 
         return paymentMethod;
     }
-
 
     async findAll(branchId: string): Promise<{ count: number; paymentMethods: PaymentMethod[] }> {
         const { count, rows: paymentMethods } = await PaymentMethod.findAndCountAll({
             where: { branchId },
             include: [
                 {
-                  model: User, // El modelo que corresponde al usuario
-                  attributes: ['name'], // Otras propiedades que desees devolver
-                  as: 'creator' // Asegúrate de tener una relación definida entre PaymentMethod y User
+                    model: User, 
+                    attributes: ['name'], 
+                    as: 'creator'
                 }
-              ]
+            ]
         });
 
         return { count, paymentMethods };
@@ -49,12 +49,24 @@ export class PaymentMethodService {
 
     async update(id: string, updatePaymentMethodDto: UpdatePaymentMethodDto): Promise<PaymentMethod> {
         const paymentMethod = await this.findOne(id);
+
+        if (!paymentMethod) {
+            throw new NotFoundException(`Método de pago con id ${id} no encontrado.`);
+        }
+
         await paymentMethod.update(updatePaymentMethodDto);
-        return paymentMethod;
+
+        return this.findOne(id);
     }
 
     async remove(id: string): Promise<void> {
         const paymentMethod = await this.findOne(id);
+
+        if (!paymentMethod) {
+            throw new NotFoundException(`Método de pago con id ${id} no encontrado.`);
+        }
+
         await paymentMethod.destroy();
     }
+
 }

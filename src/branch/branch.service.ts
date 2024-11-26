@@ -31,7 +31,7 @@ export class BranchService {
                         through: { attributes: [] },
                         where: { id: user.branches[0].id },
                     }],
-                    where: { role: 'owner' },
+                    where: { role: 'dueño' },
                 });
     
                 if (!owner) {

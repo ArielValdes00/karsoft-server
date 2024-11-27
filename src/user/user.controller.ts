@@ -19,7 +19,7 @@ export class UserController {
     async createUser(
         @Param('branchId') branchId: string,
         @Param('creatorId') creatorId: string,
-        @Body() createUserDto: CreateUserDto 
+        @Body() createUserDto: CreateUserDto
     ) {
         return this.userService.createUserByAdminOrOwner(createUserDto, creatorId, branchId);
     }
@@ -48,5 +48,13 @@ export class UserController {
     @UseInterceptors(FileInterceptor('file'))
     async uploadImage(@Param('id') id: string, @UploadedFile() file: Express.Multer.File) {
         return this.userService.uploadImage(id, file);
+    }
+
+    @Patch(':userId')
+    async setActiveBranch(
+        @Param('userId') userId: string,
+        @Body('branchId') branchId: string
+    ): Promise<void> {
+        return this.userService.setActiveBranch(userId, branchId);
     }
 }

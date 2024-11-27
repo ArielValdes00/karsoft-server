@@ -5,11 +5,13 @@ import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { UserService } from 'src/user/user.service';
 
 @Controller('auth')
 export class AuthController {
     constructor(
-        private readonly authService: AuthService,
+        private readonly authService: AuthService, 
+        private readonly userService: UserService
     ) { }
 
     @Post('register')
@@ -21,7 +23,6 @@ export class AuthController {
 
             return res.status(HttpStatus.OK).json({ success: true, access_token, id: user.id });
         } catch (error) {
-            console.log(error);
             if (error.code === '23505') {
                 throw new HttpException('User already exists', HttpStatus.CONFLICT);
             }
@@ -35,11 +36,13 @@ export class AuthController {
         try {
             const { user } = req;
             if (user) {
-                return res.status(HttpStatus.OK).json({ success: true, user });
+                const fullUser = await this.userService.findOne(user.sub);
+                return res.status(HttpStatus.OK).json({ success: true, user: fullUser });
             } else {
                 return res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: 'Usuario no autenticado' });
             }
         } catch (error) {
+            console.log(error)
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: 'Error al obtener información del usuario' });
         }
     }

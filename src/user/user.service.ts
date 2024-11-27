@@ -144,7 +144,7 @@ export class UserService {
 
         return user
     }
-    
+
     async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
         const user = await User.findByPk(id);
         if (!user) {
@@ -179,10 +179,14 @@ export class UserService {
     }
 
     async setActiveBranch(userId: string, branchId: string): Promise<void> {
-        await User.update(
-            { currentBranchId: branchId },
-            { where: { id: userId } }
-        );
+        console.log(branchId)
+        const user = await User.findByPk(userId);
+
+        if (!user) {
+            throw new NotFoundException(`Usuario con ID ${userId} no encontrado`);
+        }
+
+        await user.update({ currentBranchId: branchId });
     }
 
 }

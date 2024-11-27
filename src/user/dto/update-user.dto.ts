@@ -29,4 +29,7 @@ export class UpdateUserDto {
     @IsOptional()
     @Length(0, 255, { message: 'La URL del avatar no debe exceder los 255 caracteres' })
     avatar?: string;
+    
+    @IsOptional()
+    currentBranchId?: string;
 }

@@ -25,6 +25,7 @@ export class Client extends Model<Client> {
     @Column({ type: DataType.STRING })
     car_model: string;
 
+    @Default(DataType.NOW)
     @Column({ type: DataType.DATE })
     last_visited: Date;
 

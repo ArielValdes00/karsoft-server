@@ -53,9 +53,17 @@ export class ClientService {
         return `This action returns a #${id} client`;
     }
 
-    update(id: string, updateClientDto: UpdateClientDto) {
-        return `This action updates a #${id} client`;
-    }
+    async update(id: string, updateClientDto: UpdateClientDto) {
+        const client = await Client.findByPk(id);
+    
+        if (!client) {
+            throw new NotFoundException(`Client with ID ${id} not found`);
+        }
+    
+        await client.update(updateClientDto);
+    
+        return client;
+    }    
 
     remove(id: string) {
         return Client.destroy({

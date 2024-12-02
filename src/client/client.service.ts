@@ -65,12 +65,12 @@ export class ClientService {
         return client;
     }    
 
-    remove(id: string) {
-        return Client.destroy({
-            where: {
-                id: id,
-            },
-        });
-    }
+    async remove(ids: string[]): Promise<void> {
+        const users = await Client.findAll({ where: { id: ids } });
+        if (users.length !== ids.length) {
+            throw new NotFoundException(`Algunos usuarios no fueron encontrados.`);
+        }
+        await Client.destroy({ where: { id: ids } });
+    }    
 
 }

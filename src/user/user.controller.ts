@@ -42,9 +42,9 @@ export class UserController {
         return this.userService.update(id, updateUserDto);
     }
 
-    @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.userService.remove(id);
+    @Delete()
+    removeMany(@Body('ids') ids: string[]) {
+        return this.userService.removeMany(ids);
     }
 
     @Post(':id/upload')

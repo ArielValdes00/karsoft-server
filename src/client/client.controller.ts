@@ -38,8 +38,8 @@ export class ClientController {
         return this.clientService.update(id, updateClientDto);
     }
 
-    @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.clientService.remove(id);
+    @Delete()
+    remove(@Body('ids') ids: string[]) {
+        return this.clientService.remove(ids);
     }
 }

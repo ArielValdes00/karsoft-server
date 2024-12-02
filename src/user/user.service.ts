@@ -46,7 +46,7 @@ export class UserService {
     }
 
     async createUserByAdminOrOwner(createUserDto: CreateUserDto, creatorId: string, branchId: string): Promise<any> {
-        const { name, lastname, email, password, phone_number, role } = createUserDto;
+        const { name, lastname, email, password, phone_number, role, status } = createUserDto;
 
         const creator = await User.findOne({ where: { id: creatorId } });
         if (!creator) {
@@ -71,6 +71,7 @@ export class UserService {
             password: hashedPassword,
             phone_number,
             role,
+            status
         });
 
         const branch = await Branch.findOne({ where: { id: branchId } });
@@ -165,13 +166,13 @@ export class UserService {
         return user;
     }
 
-    async remove(id: string): Promise<void> {
-        const user = await User.findByPk(id);
-        if (!user) {
-            throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
+    async removeMany(ids: string[]): Promise<void> {
+        const users = await User.findAll({ where: { id: ids } });
+        if (users.length !== ids.length) {
+            throw new NotFoundException(`Algunos usuarios no fueron encontrados.`);
         }
-        await user.destroy();
-    }
+        await User.destroy({ where: { id: ids } });
+    }    
 
     async uploadImage(id: string, file: Express.Multer.File): Promise<User> {
         const user = await User.findByPk(id);

@@ -24,9 +24,12 @@ export class UserController {
         return this.userService.createUserByAdminOrOwner(createUserDto, creatorId, branchId);
     }
 
-    @Get()
-    async findAll(@Query('role') role?: string, @Query('search') search?: string) {
-        return this.userService.findAll(role, search);
+    @Get(':branchId/:userId')
+    async findAll(
+        @Param('branchId') branchId: string,
+        @Param('userId') userId: string,
+        @Query('role') role?: string, @Query('search') search?: string) {
+        return this.userService.findAll(role, search, branchId, userId);
     }
 
     @Get(':id')

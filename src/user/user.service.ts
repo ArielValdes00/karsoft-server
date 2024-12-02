@@ -46,7 +46,7 @@ export class UserService {
     }
 
     async createUserByAdminOrOwner(createUserDto: CreateUserDto, creatorId: string, branchId: string): Promise<any> {
-        const { name, lastname, email, password, phone_number } = createUserDto;
+        const { name, lastname, email, password, phone_number, role } = createUserDto;
 
         const creator = await User.findOne({ where: { id: creatorId } });
         if (!creator) {
@@ -70,7 +70,7 @@ export class UserService {
             email,
             password: hashedPassword,
             phone_number,
-            role: 'empleado',
+            role,
         });
 
         const branch = await Branch.findOne({ where: { id: branchId } });
@@ -88,29 +88,40 @@ export class UserService {
         return !user;
     }
 
-    async findAll(role?: string, search?: string): Promise<User[]> {
-        const whereConditions: any = {};
-
+    async findAll(role?: string, search?: string, branchId?: string, userId?: string) {
+        const whereConditions: any = {
+            '$branches.id$': branchId, 
+        };
+    
         if (role) {
             whereConditions.role = role;
         }
-
+    
         if (search) {
             whereConditions.name = { [Op.iLike]: `%${search}%` };
         }
-
+    
+        if (userId) {
+            whereConditions.id = { [Op.ne]: userId }; 
+        }
+    
         const users = await User.findAll({
             where: whereConditions,
-            attributes: { exclude: ['password'] },
-            include: [{ model: Branch, through: { attributes: [] } }],
+            attributes: { exclude: ['password'] },  
+            include: [
+                {
+                    model: Branch,
+                    through: { attributes: [] }, 
+                },
+            ],
         });
-
+    
         if (!users || users.length === 0) {
-            throw new NotFoundException('No se encontraron usuarios');
+            throw new NotFoundException('No se encontraron usuarios para esta sucursal');
         }
-
+    
         return users;
-    }
+    }    
 
     async findOne(id: string): Promise<User> {
         const user = await User.findByPk(id, {

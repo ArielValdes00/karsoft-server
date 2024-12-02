@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Branch } from 'src/branch/entities/branch.entity';
 import { Order } from 'src/order/entities/order.entity';
 import { OrderService } from 'src/order-service/entities/order-service.entity';
+import { User } from 'src/user/entities/user.entity';
 
 @Table({ tableName: 'services' })
 export class Service extends Model<Service> {
@@ -34,4 +35,10 @@ export class Service extends Model<Service> {
     @BelongsToMany(() => Order, () => OrderService)
     orders: Order[];
 
+    @ForeignKey(() => User)
+    @Column({ type: DataType.UUID, allowNull: false })
+    created_by: string;
+
+    @BelongsTo(() => User)
+    creator: User;
 }

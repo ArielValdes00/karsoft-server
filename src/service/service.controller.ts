@@ -9,12 +9,13 @@ import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
 export class ServiceController {
     constructor(private readonly serviceService: ServiceService) { }
 
-    @Post(':branchId')
+    @Post(':branchId/:userId')
     async create(
         @Param('branchId') branchId: string,
+        @Param('userId') userId: string,
         @Body() createServiceDto: CreateServiceDto
     ) {
-        return this.serviceService.create(createServiceDto, branchId);
+        return this.serviceService.create(createServiceDto, branchId, userId);
     }
 
     @Get(':branchId')

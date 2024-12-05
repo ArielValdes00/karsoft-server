@@ -20,10 +20,10 @@ export class Service extends Model<Service> {
 
     @Column({
         type: DataType.ENUM,
-        values: ['active', 'inactive'],
+        values: ['activo', 'inactivo'],
         allowNull: false,
     })
-    status: "active" | "inactive";
+    status: "activo" | "inactivo";
 
     @ForeignKey(() => Branch)
     @Column({ type: DataType.UUID })

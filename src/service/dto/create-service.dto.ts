@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateServiceDto {
     @IsString()
@@ -9,7 +9,7 @@ export class CreateServiceDto {
     @IsNotEmpty()
     price: number;
 
-    @IsEnum(['active', 'inactive'])
-    @IsNotEmpty()
-    status: "active" | "inactive";
+    @IsEnum(['activo', 'inactivo'])
+    @IsOptional()
+    status?: "activo" | "inactivo";
 }

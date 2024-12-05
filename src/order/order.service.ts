@@ -38,7 +38,6 @@ export class OrderService {
         const services = await Service.findAll({
             where: {
                 id: serviceIds,
-                status: 'active',
             },
         });
 

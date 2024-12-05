@@ -51,15 +51,29 @@ export class ServiceService {
         return { count, services };
     }    
 
-    findOne(id: number) {
+    findOne(id: string) {
         return `This action returns a #${id} service`;
     }
 
-    update(id: number, updateServiceDto: UpdateServiceDto) {
-        return `This action updates a #${id} service`;
-    }
-
-    remove(id: number) {
-        return `This action removes a #${id} service`;
-    }
+    async update(id: string, updateServiceDto: UpdateServiceDto) {
+        const service = await Service.findByPk(id);
+    
+        if (!service) {
+          throw new NotFoundException(`Service with ID #${id} not found`);
+        }
+    
+        await service.update(updateServiceDto);
+        return service;
+      }
+    
+      async remove(id: string) {
+        const service = await Service.findByPk(id);
+    
+        if (!service) {
+          throw new NotFoundException(`Service with ID #${id} not found`);
+        }
+    
+        await service.destroy();
+        return service;
+      }
 }

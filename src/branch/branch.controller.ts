@@ -28,7 +28,7 @@ export class BranchController {
     }
     
 
-    @Get(':id')
+    @Get('build/:id')
     findOne(@Param('id') id: string) {
         return this.branchService.findOne(id);
     }

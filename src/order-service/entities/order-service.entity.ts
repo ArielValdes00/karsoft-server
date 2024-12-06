@@ -11,4 +11,7 @@ export class OrderService extends Model<OrderService> {
     @ForeignKey(() => Service)
     @Column({ type: DataType.UUID }) 
     serviceId: string; 
+
+    @Column({ type: DataType.STRING, allowNull: true })
+    serviceDescription: string;
 }

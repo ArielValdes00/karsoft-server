@@ -1,11 +1,11 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { OrderServiceHandler } from './order.service';
 
 @Controller('order')
 export class OrderController {
-    constructor(private readonly orderService: OrderService) { }
+    constructor(private readonly orderService: OrderServiceHandler) { }
 
     @Post(':branchId')
     async create(
@@ -22,7 +22,7 @@ export class OrderController {
 
     @Get(':id')
     findOne(@Param('id') id: string) {
-        return this.orderService.findOne(id);
+        return this.orderService.getOrderDetails(id);
     }
 
     @Patch(':id')

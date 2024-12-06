@@ -6,6 +6,7 @@ import { Service } from 'src/service/entities/service.entity';
 import { OrderService } from 'src/order-service/entities/order-service.entity';
 import { PaymentMethod } from 'src/payment-method/entities/payment-method.entity';
 import { Branch } from 'src/branch/entities/branch.entity';
+import { IsArray, IsOptional, IsString } from 'class-validator';
 
 @Table({ tableName: 'orders' })
 export class Order extends Model<Order> {
@@ -14,11 +15,14 @@ export class Order extends Model<Order> {
     @Column({ type: DataType.UUID, unique: true })
     id: string;
 
+    @Column({ type: DataType.STRING, unique: true })
+    orderId: string;
+
     @Column({ type: DataType.FLOAT })
     discount: number;
 
-    @Column({ type: DataType.STRING })
-    extras: string;
+    @Column({ type: DataType.FLOAT })
+    extras: number;
 
     @Column({ type: DataType.FLOAT })
     subtotal: number;
@@ -32,6 +36,17 @@ export class Order extends Model<Order> {
 
     @BelongsTo(() => PaymentMethod)
     paymentMethod: PaymentMethod;
+
+    @Column({ type: DataType.FLOAT })
+    paymentDiscount: number;
+
+    @Column({ type: DataType.FLOAT })
+    paymentExtra: number;
+
+    @IsOptional()
+    @IsArray()
+    @IsString({ each: true })
+    serviceDescriptions?: string[];
 
     @ForeignKey(() => User)
     @Column({ type: DataType.UUID })

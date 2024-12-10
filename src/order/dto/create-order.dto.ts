@@ -42,5 +42,7 @@ export class CreateOrderDto {
     @IsEnum(['finalizado', 'en proceso', 'sin empezar'])
     @IsOptional()
     status?: 'finalizado' | 'en proceso' | 'sin empezar';
+
+    @IsOptional()
     serviceDescriptions: any;
 }

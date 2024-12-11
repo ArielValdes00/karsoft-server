@@ -4,7 +4,6 @@ export class CreateOrderDto {
     @IsUUID()
     clientId: string;
 
-    @IsUUID()
     @IsOptional() 
     serviceId: string | string[]; 
 

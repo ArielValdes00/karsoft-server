@@ -78,9 +78,12 @@ export class Order extends Model<Order> {
     @Column({ type: DataType.DATE })
     end_date: Date;
 
-    @Column({ 
+    @Column({
         type: DataType.ENUM('finalizado', 'en proceso', 'sin empezar'),
-        defaultValue: 'sin empezar' 
+        defaultValue: 'sin empezar'
     })
     status: 'finalizado' | 'en proceso' | 'sin empezar';
+
+    @Column({ type: DataType.JSON, allowNull: true })
+    metadata: any;
 }

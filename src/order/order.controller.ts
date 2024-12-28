@@ -10,11 +10,11 @@ export class OrderController {
     constructor(private readonly orderService: OrderServiceHandler) { }
 
     @Post(':branchId')
-    async create(
+    create(
         @Param('branchId') branchId: string,
         @Body() createOrderDto: CreateOrderDto
     ) {
-        return await this.orderService.create(createOrderDto, branchId);
+        return this.orderService.create(createOrderDto, branchId);
     }
 
     @Get(':branchId')

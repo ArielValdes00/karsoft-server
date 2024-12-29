@@ -17,13 +17,13 @@ export class BranchService {
             const user = await User.findByPk(userId, {
                 include: [{ model: Branch, through: { attributes: [] } }],
             });
-    
+
             if (!user) {
                 throw new NotFoundException('User not found');
             }
-    
+
             let ownerId: string;
-    
+
             if (user.branches && user.branches.length > 0) {
                 const owner = await User.findOne({
                     include: [{
@@ -33,46 +33,46 @@ export class BranchService {
                     }],
                     where: { role: 'dueño' },
                 });
-    
+
                 if (!owner) {
                     throw new Error('No owner found for the existing branch');
                 }
-    
+
                 ownerId = owner.id;
             } else {
                 ownerId = userId;
-    
+
                 if (user.role !== 'dueño') {
                     user.role = 'dueño';
                     await user.save();
                 }
             }
-    
+
             const branch = await Branch.create(createBranchDto);
-    
+
             await UserBranch.create({
                 userId: ownerId,
                 branchId: branch.id,
             });
-    
+
             if (userId !== ownerId) {
                 await UserBranch.create({
                     userId: userId,
                     branchId: branch.id,
                 });
             }
-    
+
             return branch;
         } catch (error) {
             throw error;
         }
     }
-    
+
 
     async findAllByUserId(
         userId: string,
         search?: string
-    ): Promise<{ count: number; branches: Branch[]; total_clients: number; total_users: number }> {
+    ): Promise<{ count: number; branches: any[] }> {
         const user = await User.findByPk(userId, {
             include: [
                 {
@@ -87,42 +87,37 @@ export class BranchService {
             throw new NotFoundException('Usuario no encontrado');
         }
 
-        const count = user.branches.length;
+        const branches = await Promise.all(
+            user.branches.map(async (branch) => {
+                const total_clients = await Client.count({
+                    where: { branchId: branch.id }, 
+                });
 
-        const total_clients = await Client.count({
-            include: [
-                {
-                    model: Branch,
-                    required: true,
+                const total_users = await User.count({
                     include: [
                         {
-                            model: User,
-                            where: { id: userId },
+                            model: Branch,
+                            where: { id: branch.id }, 
+                            required: true,
                         },
                     ],
-                },
-            ],
-        });
+                    distinct: true,
+                });
 
-        const total_users = await User.count({
-            include: [
-                {
-                    model: Branch,
-                    where: search ? { name: { [Op.iLike]: `%${search}%` } } : {},
-                    required: true,
-                },
-            ],
-            distinct: true,
-        });
+                return {
+                    ...branch.get(), 
+                    total_clients,
+                    total_users,
+                };
+            })
+        );
 
         return {
-            count,
-            branches: user.branches,
-            total_clients,
-            total_users,
+            count: branches.length,
+            branches,
         };
     }
-      
+
     async findAll(): Promise<Branch[]> {
         return Branch.findAll();
     }

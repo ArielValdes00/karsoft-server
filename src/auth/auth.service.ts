@@ -97,6 +97,10 @@ export class AuthService {
         if (!user) {
             throw new UnauthorizedException('No hay email');
         }
+
+        if (user.status === 'inactivo') {
+            throw new UnauthorizedException('Esta cuenta no está activa');
+        }
     
         const passwordMatch = await bcrypt.compare(password, user.password);
         if (!passwordMatch) {

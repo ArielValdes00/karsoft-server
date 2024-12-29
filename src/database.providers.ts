@@ -25,7 +25,7 @@ export const databaseProviders = [
                 }
             });
             sequelize.addModels([User, Mercadopago, Branch, UserBranch, Client, Service, Order, OrderService, PaymentMethod]);
-            await sequelize.sync({alter:true});
+            await sequelize.sync();
             return sequelize;
         },
     },

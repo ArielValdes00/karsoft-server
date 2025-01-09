@@ -11,7 +11,7 @@ import * as bcrypt from 'bcrypt';
 export class UserService {
     constructor(private cloudinaryService: CloudinaryService) { }
 
-    async updatePassword(userId: number, newPassword: string): Promise<void> {
+    async updatePassword(userId: string, newPassword: string): Promise<void> {
         const user = await User.findByPk(userId);
         if (!user) {
             throw new NotFoundException(`Usuario con ID ${userId} no encontrado`);
@@ -191,7 +191,6 @@ export class UserService {
     }
 
     async setActiveBranch(userId: string, branchId: string): Promise<void> {
-        console.log(branchId)
         const user = await User.findByPk(userId);
 
         if (!user) {

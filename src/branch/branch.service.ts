@@ -68,7 +68,6 @@ export class BranchService {
         }
     }
 
-
     async findAllByUserId(
         userId: string,
         search?: string
@@ -78,7 +77,8 @@ export class BranchService {
                 {
                     model: Branch,
                     through: { attributes: [] },
-                    where: search ? { name: { [Op.iLike]: `%${search}%` } } : {},
+                    where: search ? { name: { [Op.iLike]: `%${search}%` } } : undefined,
+                    required: false,
                 },
             ],
         });
@@ -88,16 +88,16 @@ export class BranchService {
         }
 
         const branches = await Promise.all(
-            user.branches.map(async (branch) => {
+            (user.branches || []).map(async (branch) => {
                 const total_clients = await Client.count({
-                    where: { branchId: branch.id }, 
+                    where: { branchId: branch.id },
                 });
 
                 const total_users = await User.count({
                     include: [
                         {
                             model: Branch,
-                            where: { id: branch.id }, 
+                            where: { id: branch.id },
                             required: true,
                         },
                     ],
@@ -105,7 +105,7 @@ export class BranchService {
                 });
 
                 return {
-                    ...branch.get(), 
+                    ...branch.get(),
                     total_clients,
                     total_users,
                 };

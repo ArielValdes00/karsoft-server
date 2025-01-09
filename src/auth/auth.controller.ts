@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Post, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpException, HttpStatus, Param, Post, Req, Res, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
@@ -6,11 +6,12 @@ import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { UserService } from 'src/user/user.service';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Controller('auth')
 export class AuthController {
     constructor(
-        private readonly authService: AuthService, 
+        private readonly authService: AuthService,
         private readonly userService: UserService
     ) { }
 
@@ -31,7 +32,7 @@ export class AuthController {
     }
 
     @Get('me')
-    @UseGuards(JwtAuthGuard) 
+    @UseGuards(JwtAuthGuard)
     async getMe(@Req() req, @Res() res: Response) {
         try {
             const { user } = req;
@@ -82,6 +83,21 @@ export class AuthController {
             resetPasswordDto.token,
             resetPasswordDto.newPassword,
             resetPasswordDto.confirmPassword
+        );
+        return results;
+    }
+
+    @Post('change-password/:id')
+    @HttpCode(HttpStatus.OK)
+    async changePassword(
+        @Param('id') id: string,
+        @Body() changePasswordDto: ChangePasswordDto,
+    ) {
+        const results = await this.authService.changePassword(
+            id,
+            changePasswordDto.currentPassword,
+            changePasswordDto.newPassword,
+            changePasswordDto.confirmPassword,
         );
         return results;
     }

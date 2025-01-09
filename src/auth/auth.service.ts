@@ -61,6 +61,31 @@ export class AuthService {
         return { ok: true };
     }
 
+    async changePassword(userId: string, currentPassword: string, newPassword: string, confirmPassword: string): Promise<{ ok: boolean }> {
+        if (newPassword !== confirmPassword) {
+            throw new BadRequestException('Passwords do not match');
+        }
+    
+        const user = await this.userService.findOne(userId);
+    
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+    
+        const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    
+        if (!isPasswordValid) {
+            throw new UnauthorizedException('Current password is incorrect');
+        }
+    
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+    
+        await this.userService.updatePassword(userId, hashedPassword);
+    
+        return { ok: true };
+    }
+    
+
     private async isEmailUnique(email: string): Promise<boolean> {
         const user = await this.userService.findByEmail(email);
         return !user;
@@ -95,7 +120,7 @@ export class AuthService {
         let user = await this.userService.findByEmail(email);
     
         if (!user) {
-            throw new UnauthorizedException('No hay email');
+            throw new UnauthorizedException('El usuario o la contraseña son incorrectos');
         }
 
         if (user.status === 'inactivo') {
@@ -104,7 +129,7 @@ export class AuthService {
     
         const passwordMatch = await bcrypt.compare(password, user.password);
         if (!passwordMatch) {
-            throw new UnauthorizedException('La contra no es');
+            throw new UnauthorizedException('El usuario o la contraseña son incorrectos');
         }
     
         let currentBranchId = user.currentBranchId;
